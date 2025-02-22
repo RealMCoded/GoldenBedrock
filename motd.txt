@@ -1,0 +1,4 @@
+ItemText|0|72|~1Welcome to GoldenBedrock!
+Text|48|This can be modified in the ~1motd.txt~0 file!
+Text|24|and check out ~1MOTD-GUIDE.md ~0for the style guide!
+LinkButton|https://github.com/RealMCoded/GoldenBedrock/|Check out the github page!
