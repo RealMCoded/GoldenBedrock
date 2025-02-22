@@ -7,6 +7,7 @@ import { online, motd } from "./main";
 import User from "./models/User";
 import { generate_token, string_buffer } from "./utils";
 import { convert_to_game_format, create_world, find_spawn, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
+import { item_from_id, ITEM_TYPE } from "./items";
 
 enum CommandType
 {
@@ -325,6 +326,7 @@ class Player
             {
                 let doubleClick = reader.readUint8() //thank you quu for making the game send the double click signal 
                 let slot = reader.readUint8()
+                let item_data = item_from_id(this.profile.data.inventory.items[slot].index);
                 console.log(doubleClick, slot)
 
                 if (!doubleClick)
@@ -334,18 +336,18 @@ class Player
                     notification_time.writeUint16LE(100)
     
                     let notification_icon = Buffer.alloc(2)
-                    notification_icon.writeUint16LE((slot*2)+1)
+                    notification_icon.writeUint16LE(this.profile.data.inventory.items[slot].index)
     
-                    let text = Buffer.from("An item" + "\0", 'utf-8')
+                    let text = Buffer.from(item_data.name + "\0", 'utf-8')
                     send_data(this.socket, 17, notification_time, notification_icon, text)
                 }
                 else
                 {
                     //double click actions
                     update_dialog(this, new Dialog()
-                        .ItemText(true, "Double Click action", 72, 0)
-                        .Text(true, `Slot ${slot}`, 32)
-                        .Button(true, "xit", "ok cool")
+                        .ItemText(true, item_data.name, 72, this.profile.data.inventory.items[slot].index)
+                        .Text(true, item_data.info, 48)
+                        .Button(true, "close", "Close")
                     )
                 }
             } break;
@@ -486,6 +488,7 @@ class Player
                 let item = reader.readUint16();
                 let click_count = reader.readUint16();
                 console.log(click_x, click_y, item, click_count)
+                let item_data = item_from_id(item);
 
                 const world_data = tiles_at_location(this.world, click_x, click_y)
 
