@@ -742,6 +742,24 @@ class Player
                             }
                         } break;
 
+                        case "/item":
+                        {
+                            if (args.length != 3) 
+                            {
+                                let message = Buffer.from(`~5Usage: /item <id> <amount>\0`, 'utf-8');
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
+                                return;
+                            }
+
+                            this.profile.data.inventory.items.push({index: +args[1], count: +args[2], equipped: 0})
+
+                            //Send inventory data
+                            let invData:Buffer = this.profile.get_inventory()
+                            send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
+                            let message = Buffer.from(`~5Gave ${args[2]}x "${args[1]}"\0`, 'utf-8');
+                            send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
+                        } break;
+
                         case "/usrref":
                         {
                             let message = Buffer.from(`~5Player refreshed.\0`, 'utf-8');
