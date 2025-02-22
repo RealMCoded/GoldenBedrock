@@ -11,6 +11,7 @@ class MessageOfTheDay
     {
         if (!fs.existsSync("motd.txt"))
         {
+            this.render = false
             console.error("[MOTD] motd.txt does not exist! MOTD will not render.");
             return;
         };
@@ -57,6 +58,7 @@ class MessageOfTheDay
 
         this.messageOfTheDay.Button(true, "motd.exit", "Close")
         console.log("[MOTD] Rendered.")
+        this.render = true
     }
 }
 

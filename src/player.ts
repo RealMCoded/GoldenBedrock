@@ -220,7 +220,9 @@ class Player
                 if (success) 
                 {
                     await this.profile.load_profile(uname)
-                    update_dialog(this, motd.messageOfTheDay)
+
+                    if (motd.render)
+                        update_dialog(this, motd.messageOfTheDay)
 
                     //Send inventory data
                     let invData:Buffer = this.profile.get_inventory()
@@ -674,7 +676,10 @@ class Player
                     {
                         case "/motd":
                         {
-                            update_dialog(this, motd.messageOfTheDay)
+                            if (motd.render)
+                                update_dialog(this, motd.messageOfTheDay)
+                            else
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3MOTD has been disabled on this server."))
                         } break;
 
                         case "/g":
