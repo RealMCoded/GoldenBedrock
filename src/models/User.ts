@@ -17,7 +17,7 @@ class User extends Model {
   public lastWorld!: string;
   public options!: object;
   public avatar!: object;
-  public inventory!: object;
+  public inventory!: {slots:number, items:[{index:number, count:number, equipped:number}]};
   public friends!: number[];
   public worlds!: number[];
   public achievements!: number[];
