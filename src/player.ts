@@ -549,11 +549,59 @@ class Player
                 }
                 else // everything else
                 {
-                    console.log("Placeable?")
+                    console.log("Other item interaction")
 
-                    //if (world_data.foreground !== 0 && world_data.background !== 0) return;
+                    switch(item_data.type)
+                    {
+                        case ITEM_TYPE.NONE: {} break;
+                        case ITEM_TYPE.FOREGROUND: {
+                            let x_buffer = Buffer.alloc(2)
+                            x_buffer.writeInt16LE(click_x)
+                
+                            let y_buffer = Buffer.alloc(2)
+                            y_buffer.writeInt16LE(click_y)
+    
+                            let layer_buffer = Buffer.alloc(2)
+                            layer_buffer.writeInt16LE(2)
+                
+                            let place_buffer = Buffer.alloc(2)
+                            place_buffer.writeInt16LE(item)
+        
+                            send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+    
+                            broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+    
+                            modify_tile(this.world, click_x, click_y, 2, item)
+                        } break;
+                        case ITEM_TYPE.BACKGROUND: {
+                            let x_buffer = Buffer.alloc(2)
+                            x_buffer.writeInt16LE(click_x)
+                
+                            let y_buffer = Buffer.alloc(2)
+                            y_buffer.writeInt16LE(click_y)
+    
+                            let layer_buffer = Buffer.alloc(2)
+                            layer_buffer.writeInt16LE(1)
+                
+                            let place_buffer = Buffer.alloc(2)
+                            place_buffer.writeInt16LE(item)
+        
+                            send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+    
+                            broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+    
+                            modify_tile(this.world, click_x, click_y, 1, item)
+                        } break;
+                        case ITEM_TYPE.EQUIPPABLE: {
+                            send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~3You cannot place equippable items!`))
+                        } break;
+                        case ITEM_TYPE.INTERACTABLE: {
+                            //manage them here later.
+                        } break;
+                        case ITEM_TYPE.TREE: {
 
-                    //modify_tile(this.world, click_x, click_y, layer, 13)
+                        } break;
+                    }
                 }
             } break;
 
