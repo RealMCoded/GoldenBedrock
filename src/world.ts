@@ -53,14 +53,32 @@ function generate_world()
         }
     }
 
-    //obsidian: 727
-
     for(let world_y = 25; world_y < 50; world_y++)
     {
         for(let world_x = 0; world_x < 100; world_x++)
         {
+
+            //TODO: Deal with double tiles. Probably generate randomness before putting dirt?
             world_data.tiles.foreground.push({x: world_x, y: world_y, id: 9, data:[]})
             world_data.tiles.background.push({x: world_x, y: world_y, id: 15, data:[]})
+
+            //random cobble
+            if (world_y > 28 && Math.floor(Math.random() * 15) == 0)
+            {
+                world_data.tiles.foreground.push({x: world_x, y: world_y, id: 13, data:[]})
+            }
+
+            //random lava
+            if (world_y > 34 && Math.floor(Math.random() * 10) == 0)
+            {
+                world_data.tiles.foreground.push({x: world_x, y: world_y, id: 11, data:[]})
+            }
+
+            //random obsidian
+            if (world_y > 39 && Math.floor(Math.random() * 10) == 0)
+            {
+                world_data.tiles.foreground.push({x: world_x, y: world_y, id: 727, data:[]})
+            }
 
             //layers of bedrock
             if (world_y > 47)
