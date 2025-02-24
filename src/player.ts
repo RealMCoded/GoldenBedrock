@@ -155,6 +155,8 @@ class Player
                 const device = reader.readArrayAsString(device_leng);
                 const ver_leng = reader.readUint8();
                 const ver = reader.readArrayAsString(ver_leng);
+                const country_leng = reader.readUint8();
+                this.profile.country = reader.readArrayAsString(country_leng);
 
                 if(ver !== '3.8.3')
                 {
@@ -167,9 +169,6 @@ class Player
                         )
                     return;
                 }
-
-                const country_leng = reader.readUint8();
-                this.profile.country = reader.readArrayAsString(country_leng);
 
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~rConnected to GoldenBedrock successfully!"))
 
