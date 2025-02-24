@@ -322,6 +322,15 @@ class Player
                 )
             } break;
 
+            case CommandType.FRIENDS_MENU:
+            {
+                update_dialog(this, new Dialog("menu.friends")
+                .ItemText(true, `Friends - 0/0 `, 72, 0)
+                .Text(true, "Friends to be added eventually.", 48)
+                .Button(true, "close", "Close")
+                )
+            } break;
+
             case CommandType.INVENTORY_CLICK:
             {
                 let doubleClick = reader.readUint8() //thank you quu for making the game send the double click signal 
