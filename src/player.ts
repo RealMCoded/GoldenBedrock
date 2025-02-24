@@ -608,7 +608,23 @@ class Player
                             //manage them here later.
                         } break;
                         case ITEM_TYPE.TREE: {
-
+                            let x_buffer = Buffer.alloc(2)
+                            x_buffer.writeInt16LE(click_x)
+                
+                            let y_buffer = Buffer.alloc(2)
+                            y_buffer.writeInt16LE(click_y)
+    
+                            let layer_buffer = Buffer.alloc(2)
+                            layer_buffer.writeInt16LE(2)
+                
+                            let place_buffer = Buffer.alloc(2)
+                            place_buffer.writeInt16LE(item)
+        
+                            send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+    
+                            broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+    
+                            modify_tile(this.world, click_x, click_y, 2, item)
                         } break;
                     }
                 }
