@@ -3,6 +3,7 @@ import * as fs from 'fs';
 if (!fs.existsSync(".env"))
 {
     console.error("A \".env\" file does not exist! Please read the README.md file for setup instructions.")
+    process.exit(1)
 }
 
 import * as net from "net";
