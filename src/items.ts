@@ -1,5 +1,33 @@
 import items from '../data/items.json'
 
+interface item_data
+{
+    name: string,
+    info: string | undefined,
+    type: ITEM_TYPE,
+    body_layer: body_layer
+    rarity: number,
+    hardness: number
+}
+
+enum body_layer
+{
+    none,
+    back, //things like capes, wings
+    hair,
+    headwear, //caps, hats
+    eyewear, //visors, sunglasses
+    shirt,
+    pants,
+    hand, //fishing rods, pickaxes
+    footwear, //shoes
+    skin, //rainbow skin, invisible skin
+    pets,
+    car,
+    neckwear, //scarfs
+    facewear //beards, masks
+}
+
 enum ITEM_TYPE
 {
     NONE,
