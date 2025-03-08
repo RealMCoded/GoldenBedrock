@@ -95,7 +95,7 @@ class Player
         let worldNameBuffer:Buffer = string_buffer(world)
 
         send_data(this.socket, DataType.WARP, successBuffer, messageBuffer, worldNameBuffer)
-        broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer("[~1(user) ~0has entered the world.]"))
+        broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has entered the world.]`))
     }
 
     async close()
@@ -110,7 +110,7 @@ class Player
 
             broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, identifier, destroyBuffer)
 
-            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer("[~1(user) ~0has logged out.]"))
+            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has logged out.]`))
         }
 
         //remove connections
@@ -461,7 +461,7 @@ class Player
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
                             broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-                            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer("[~1(user) ~0has left the world.]"))
+                            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
 
                             this.warp(dict[0].value as string)
                         }
@@ -470,7 +470,7 @@ class Player
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
                             broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-                            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer("[~1(user) ~0has left the world.]"))
+                            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
 
                             this.warp("REWARDS")
                         }
@@ -488,7 +488,7 @@ class Player
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
                             broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-                            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer("[~1(user) ~0has left the world.]"))
+                            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
     
                             this.warp(world)
                         }
