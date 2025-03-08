@@ -274,4 +274,13 @@ function get_flag(country:string)
     return returnCountry || 229
 }
 
-export {generate_token, get_flag, string_buffer}
+function point_in_rectangle(point_x:number, point_y:number, rectangle_x1:number, rectangle_y1:number, rectangle_x2:number, rectangle_y2:number)
+{
+    //taken from GameMaker's HTML5 runner
+    if( ( point_x >= rectangle_x1 && point_x <= rectangle_x2 ) && ( point_y >= rectangle_y1 && point_y <= rectangle_y2 ) ){
+	    return true;
+	}
+	return false;
+}
+
+export {generate_token, get_flag, string_buffer, point_in_rectangle}

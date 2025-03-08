@@ -5,7 +5,7 @@ import { PlayerProfile } from "./profile";
 import { Dialog } from "./dialog";
 import { online, motd } from "./main";
 import User from "./models/User";
-import { generate_token, string_buffer } from "./utils";
+import { generate_token, point_in_rectangle, string_buffer } from "./utils";
 import { convert_to_game_format, create_world, find_spawn, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
 import { item_from_id, ITEM_TYPE } from "./items";
 
@@ -491,18 +491,19 @@ class Player
 
             case CommandType.WORLD_CLICK:
             {
-                let click_x = Math.floor(reader.readUint16() / 32);
-                let click_y = Math.floor(reader.readUint16() / 32);
+                let raw_click_x = reader.readUint16()
+                let raw_click_y = reader.readUint16() 
+                let click_x = Math.floor(raw_click_x / 32);
+                let click_y = Math.floor(raw_click_y / 32);
+
                 let item = reader.readUint16();
                 let click_count = reader.readUint16();
-                console.log(click_x, click_y, item, click_count)
+                console.log(raw_click_x, raw_click_y, click_x, click_y, item, click_count)
                 let item_data = item_from_id(item);
 
                 const world_data = tiles_at_location(this.world, click_x, click_y)
 
                 let layer = +(world_data.foreground !== 0)+1
-
-                console.log(layer)
 
                 //Fist item
                 if (item == 1)
@@ -554,6 +555,17 @@ class Player
                 else if (item == 3)
                 {
                     console.log("Wrench click interaction")
+
+                    //player wrench
+                    online.forEach(element => {
+                        if (point_in_rectangle(raw_click_x, raw_click_y, element.x, element.y, element.x + 32, element.y + 32))
+                            update_dialog(this, new Dialog()
+                            .ItemText(true, element.profile.data.username, 72, 0)
+                            .Button(true, "close", "Close")
+                            )
+                    });
+
+                    //tile wrench
                 }
                 else // everything else
                 {
@@ -576,7 +588,6 @@ class Player
                             place_buffer.writeInt16LE(item)
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-    
                             broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
     
                             modify_tile(this.world, click_x, click_y, 2, item)
@@ -723,6 +734,22 @@ class Player
                 y_buffer.writeUInt16LE(this.y, 0);
 
                 broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, leave, x_buffer, y_buffer)
+
+                //Interactable tiles
+                const world_data = tiles_at_location(this.world, Math.round(this.x/32), Math.round(this.y/32))
+
+                if (world_data.foreground !== 0)
+                {
+                    //tooltip notification
+                    let notification_time = Buffer.alloc(2)
+                    notification_time.writeUint16LE(100)
+    
+                    let notification_icon = Buffer.alloc(2)
+                    notification_icon.writeUint16LE(world_data.foreground)
+    
+                    let text = Buffer.from("Tile\0", 'utf-8')
+                    send_data(this.socket, 17, notification_time, notification_icon, text)
+                }
             } break;
 
             case CommandType.ACTION_BUBBLES:
