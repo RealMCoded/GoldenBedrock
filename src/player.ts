@@ -7,7 +7,7 @@ import { online, motd } from "./main";
 import User from "./models/User";
 import { generate_token, point_in_rectangle, string_buffer } from "./utils";
 import { convert_to_game_format, create_world, find_spawn, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
-import { item_from_id, ITEM_TYPE } from "./items";
+import { item_from_id, ITEM_TYPE } from "./item-types";
 
 enum CommandType
 {

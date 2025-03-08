@@ -1,16 +1,22 @@
-import items from '../data/items.json'
+import { items } from './item-id'
 
 interface item_data
 {
     name: string,
-    info: string | undefined,
+    info: string,
     type: ITEM_TYPE,
-    body_layer: body_layer
+    body_layer: BODY_LAYER,
     rarity: number,
-    hardness: number
+    farmability: number,
+    hardness: number,
+    can_trade: boolean,
+    can_trash: boolean,
+    can_drop: boolean,
+    can_lock: boolean,
+    is_solid: boolean
 }
 
-enum body_layer
+const enum BODY_LAYER
 {
     none,
     back, //things like capes, wings
@@ -28,7 +34,7 @@ enum body_layer
     facewear //beards, masks
 }
 
-enum ITEM_TYPE
+const enum ITEM_TYPE
 {
     NONE,
     BACKGROUND,
@@ -41,15 +47,19 @@ enum ITEM_TYPE
 function item_from_id(id:number)
 {
     return items[id] || {
-        "name": "Unknown #" + id,
-        "info": "Unknown Item with ID " + id,
-        "type": 0,
-        "part": 0,
-        "rarity": 0,
-        "hardness": 0,
-        "farmability": 0,
-        "check": 20
-      }
+        name: "Unknown #" + id,
+        info: "Unknown Item with ID " + id,
+        type: ITEM_TYPE.NONE,
+        body_layer: BODY_LAYER.none,
+        rarity: 0,
+        farmability: 0,
+        hardness: 0,
+        can_trade: false,
+        can_trash: true,
+        can_drop: false,
+        can_lock: false,
+        is_solid: false
+    }
 }
 
 function item_id_from_name(name:string)
@@ -68,4 +78,4 @@ function item_id_from_name(name:string)
     return item_id
 }
 
-export {ITEM_TYPE, item_from_id, item_id_from_name}
+export {BODY_LAYER, ITEM_TYPE, item_data, item_from_id, item_id_from_name}
