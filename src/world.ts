@@ -38,7 +38,11 @@ async function random_world(current:string)
 {
     const all_worlds = await World.findAll({ where: { [Op.not]: {name: current} } })
 
-    return all_worlds[Math.floor(Math.random()*all_worlds.length)].dataValues.name
+    if (all_worlds.length == 0)
+    {
+        return "ERR_NO_OTHER_WORLDS";
+    }
+    else return all_worlds[Math.floor(Math.random()*all_worlds.length)].dataValues.name
 }
 
 function generate_world()

@@ -478,6 +478,13 @@ class Player
                         {
                             let world = await random_world(this.world)
 
+                            if (world == "ERR_NO_OTHER_WORLDS")
+                            {
+                                let message = Buffer.from("~3Warp failed! ~0No other worlds exist yet. Go make one!\0", 'utf-8');
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
+                                return;
+                            }
+
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
                             broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
