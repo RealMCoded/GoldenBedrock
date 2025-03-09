@@ -909,6 +909,29 @@ class Player
                             send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
                         } break;
 
+                        case "/find":
+                        {
+                            if (args.length != 2) 
+                            {
+                                let message = Buffer.from(`~5Usage: /find <name>\0`, 'utf-8');
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
+                                return;
+                            }
+
+                            let itemList:Dialog = new Dialog("menu.items")
+
+                            itemList.ItemText(true, `Items containing "${args[1]}"`, 72, 0)
+                            
+                            items.forEach((element, index) => {
+                                if (element.name.toLowerCase().includes(args[1].toLowerCase()))
+                                    itemList.ItemText(true, `${index} | ${element.name}`, 48, index)
+                            });
+
+                            itemList.Button(true, "close", "Close")
+
+                            update_dialog(this, itemList)
+                        } break;
+
                         case "/usrref":
                         {
                             let message = Buffer.from(`~5Player refreshed.\0`, 'utf-8');
