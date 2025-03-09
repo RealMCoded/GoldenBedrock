@@ -794,6 +794,46 @@ class Player
                                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3MOTD has been disabled on this server."))
                         } break;
 
+                        case "/e":
+                        {
+                            if (args.length == 1)
+                            {
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /e <emote>. ~0Valid emotes: wave, dance"));
+                                return;
+                            }
+
+                            //emote ids: 1, 3. emote 2 exists but automatically ends.
+                            let emoteid:number;
+                            let emote_duration:number;
+
+                            if (args[1] == "wave")
+                            {
+                                emoteid = 1
+                                emote_duration = 5
+                            }
+                            else if (args[1] == "dance")
+                            {
+                                emoteid = 3
+                                emote_duration = 255 //this is as long as the emote can last because of how u8 works.
+                            }
+                            else
+                            {
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /e <emote>. ~0Valid emotes: wave, dance"));
+                                return;
+                            }
+
+                            let dance_id_buffer = Buffer.alloc(1)
+                            dance_id_buffer.writeUint8(emoteid)
+
+                            let dance_frame_buffer = Buffer.alloc(1)
+                            dance_frame_buffer.writeUint8(0)
+
+                            let dance_time_buffer = Buffer.alloc(1)
+                            dance_time_buffer.writeUint8(emote_duration)
+
+                            send_data(this.socket, DataType.EMOTES, this.local_identifier, dance_id_buffer, dance_frame_buffer, dance_time_buffer)
+                        } break;
+
                         case "/g":
                         {
                             if (args.length == 1)
