@@ -1,3 +1,8 @@
+/*
+	Most (all) of the data from here was taken from the server source code leak.
+	You wouldn't want to manually type out all the item information either lol.
+*/
+
 import { BODY_LAYER, item_data, ITEM_TYPE } from "./item-types"
 
 const items:item_data[] = [

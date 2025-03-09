@@ -10,6 +10,13 @@ function generate_token()
     return token;
 }
 
+function validate_string(string:string)
+{
+    let regex = /^[A-Za-z0-9]+$/
+    
+    return regex.test(string)
+}
+
 function string_buffer(string:string) : Buffer
 {
     return Buffer.from(string + "\0", 'utf-8')
@@ -283,4 +290,4 @@ function point_in_rectangle(point_x:number, point_y:number, rectangle_x1:number,
 	return false;
 }
 
-export {generate_token, get_flag, string_buffer, point_in_rectangle}
+export {generate_token, get_flag, string_buffer, point_in_rectangle, validate_string}

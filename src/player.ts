@@ -5,7 +5,7 @@ import { PlayerProfile } from "./profile";
 import { Dialog } from "./dialog";
 import { online, motd } from "./main";
 import User from "./models/User";
-import { generate_token, point_in_rectangle, string_buffer } from "./utils";
+import { generate_token, point_in_rectangle, string_buffer, validate_string } from "./utils";
 import { convert_to_game_format, create_world, find_spawn, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
 import { item_from_id, ITEM_TYPE } from "./item-types";
 
@@ -170,6 +170,9 @@ class Player
                     return;
                 }
 
+                console.log(validate_string("ThisStringIsValid"))
+                console.log(validate_string("ThisStringIs In-Valid"))
+
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~rConnected to GoldenBedrock successfully!"))
 
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("Learn more at ~5https://github.com/RealMCoded/GoldenBedrock"))
@@ -264,6 +267,11 @@ class Player
                 {
                     success = false
                     message = Buffer.from(`~3Registration failed! ~0Usernames must be between 3-12 characters long.\0`, `utf-8`)
+                }
+                else if (validate_string(uname) == false)
+                {
+                    success = false
+                    message = Buffer.from(`~3Registration failed! ~0Usernames can only contain characters A-z 0-9.\0`, `utf-8`)
                 }
                 //TODO: Blacklisted name check
                 else
@@ -451,9 +459,9 @@ class Player
                     {
                         if (sub_action == "warp")
                         {
-                            if ((dict[0].value as string).length == 0 || (dict[0].value as string).length > 32)
+                            if (validate_string((dict[0].value as string)) == false || (dict[0].value as string).length == 0 || (dict[0].value as string).length > 32)
                             {
-                                let message = Buffer.from("~3Warp failed! ~0World name must be between 1-32 characters.\0", 'utf-8');
+                                let message = Buffer.from("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9.\0", 'utf-8');
                                 send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
                                 return;
                             }
@@ -535,9 +543,7 @@ class Player
                         place_buffer.writeInt16LE(0)
     
                         send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-
                         broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-
                         modify_tile(this.world, click_x, click_y, layer, 0)
                     }
                     else
@@ -811,9 +817,9 @@ class Player
 
                         case "/warp":
                         {
-                            if ((args.length == 1) || (args[1].length == 0 || args[1].length > 32)) 
+                            if (validate_string(args[1]) == false || (args.length == 1) || (args[1].length == 0 || args[1].length > 32)) 
                             {
-                                let message = Buffer.from("~3Warp failed! ~0World name must be between 1-32 characters.\0", 'utf-8');
+                                let message = Buffer.from("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9.\0", 'utf-8');
                                 send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
                                 return;
                             }
