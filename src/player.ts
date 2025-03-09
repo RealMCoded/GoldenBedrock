@@ -170,9 +170,6 @@ class Player
                     return;
                 }
 
-                console.log(validate_string("ThisStringIsValid"))
-                console.log(validate_string("ThisStringIs In-Valid"))
-
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~rConnected to GoldenBedrock successfully!"))
 
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("Learn more at ~5https://github.com/RealMCoded/GoldenBedrock"))
