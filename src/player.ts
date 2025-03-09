@@ -226,7 +226,6 @@ class Player
                         update_dialog(this, motd.messageOfTheDay)
 
                     //Send inventory data
-                    let invData:Buffer = this.profile.get_inventory()
                     let invData:Buffer = this.profile.get_inventory_buffer()
                     send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
 
@@ -519,8 +518,7 @@ class Player
 
                 let layer = +(world_data.foreground !== 0)+1
 
-                //Fist item
-                if (item == 1)
+                if (item == item_id.fist)
                 {
                     console.log("Fist")
 
@@ -577,7 +575,7 @@ class Player
                         broadcast_data(this.id, DataType.TILE_PUNCH, x_buffer, y_buffer, hit_buffer, hardness_buffer)
                     }
                 }
-                else if (item == 3)
+                else if (item == item_id.wrench)
                 {
                     console.log("Wrench click interaction")
 
