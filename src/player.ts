@@ -8,6 +8,7 @@ import User from "./models/User";
 import { generate_token, point_in_rectangle, string_buffer, validate_string } from "./utils";
 import { convert_to_game_format, create_world, find_spawn, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
 import { item_from_id, ITEM_TYPE } from "./item-types";
+import { item_id, items } from "./item-id";
 
 enum CommandType
 {
@@ -226,6 +227,7 @@ class Player
 
                     //Send inventory data
                     let invData:Buffer = this.profile.get_inventory()
+                    let invData:Buffer = this.profile.get_inventory_buffer()
                     send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
 
                     //set proper country data, if verified
@@ -542,6 +544,19 @@ class Player
                         send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                         broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                         modify_tile(this.world, click_x, click_y, layer, 0)
+
+                        let destroyBuffer = Buffer.alloc(1)
+                        destroyBuffer.writeUint8(0)
+                        let indexBuffer = Buffer.alloc(2)
+                        indexBuffer.writeUint16LE(layer == 1 ? world_data.background : world_data.foreground)
+                        let countBuffer = Buffer.alloc(2)
+                        countBuffer.writeUint16LE(1)
+                        let xBuffer = Buffer.alloc(2)
+                        xBuffer.writeUint16LE((click_x*32)+8)
+                        let yBuffer = Buffer.alloc(2)
+                        yBuffer.writeUint16LE((click_y*32)+8)
+
+                        send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
                     }
                     else
                     {
@@ -601,6 +616,10 @@ class Player
                             broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
     
                             modify_tile(this.world, click_x, click_y, 2, item)
+
+                            this.profile.edit_inventory(item, -1)
+                            let invData:Buffer = this.profile.get_inventory_buffer()
+                            send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
                         } break;
                         case ITEM_TYPE.BACKGROUND: {
                             let x_buffer = Buffer.alloc(2)
@@ -616,10 +635,12 @@ class Player
                             place_buffer.writeInt16LE(item)
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-    
                             broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-    
                             modify_tile(this.world, click_x, click_y, 1, item)
+
+                            this.profile.edit_inventory(item, -1)
+                            let invData:Buffer = this.profile.get_inventory_buffer()
+                            send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
                         } break;
                         case ITEM_TYPE.EQUIPPABLE: {
                             send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~3You cannot place equippable items!`))
@@ -645,9 +666,40 @@ class Player
                             broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
     
                             modify_tile(this.world, click_x, click_y, 2, item)
+
+                            this.profile.edit_inventory(item, -1)
+                            let invData:Buffer = this.profile.get_inventory_buffer()
+                            send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
                         } break;
                     }
                 }
+            } break;
+
+            case CommandType.ITEM_DROP:
+            {
+                let drop_x, drop_y, drop_item, drop_count
+                drop_x = reader.readUint16()
+                drop_y = reader.readUint16()
+                drop_item = reader.readUint16()
+                drop_count = reader.readUint16()
+
+                let destroyBuffer = Buffer.alloc(1)
+                destroyBuffer.writeUint8(1)
+                let indexBuffer = Buffer.alloc(2)
+                indexBuffer.writeUint16LE(drop_item)
+                let countBuffer = Buffer.alloc(2)
+                countBuffer.writeUint16LE(drop_count)
+                let xBuffer = Buffer.alloc(2)
+                xBuffer.writeUint16LE(drop_x)
+                let yBuffer = Buffer.alloc(2)
+                yBuffer.writeUint16LE(drop_y)
+
+                send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+
+                this.profile.edit_inventory(drop_item, drop_count)
+                let invData:Buffer = this.profile.get_inventory_buffer()
+                send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
+
             } break;
 
             case CommandType.WORLD_DATA:
@@ -900,12 +952,13 @@ class Player
                                 return;
                             }
 
-                            this.profile.data.inventory.items.push({index: +args[1], count: +args[2], equipped: 0})
+                            //this.profile.data.inventory.items.push({index: +args[1], count: +args[2], equipped: 0})
+                            this.profile.edit_inventory(+args[1], +args[2])
 
                             //Send inventory data
-                            let invData:Buffer = this.profile.get_inventory()
+                            let invData:Buffer = this.profile.get_inventory_buffer()
                             send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
-                            let message = Buffer.from(`~5Gave ${args[2]}x "${args[1]}"\0`, 'utf-8');
+                            let message = Buffer.from(`~5Gave ${args[2]}x "${items[+args[1]].name}"\0`, 'utf-8');
                             send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
                         } break;
 

@@ -36,7 +36,34 @@ class PlayerProfile
         this.data[key] = value;
     }
 
-    get_inventory()
+    edit_inventory(item:item_id, count:number)
+    {
+        let found:boolean = false;
+
+        this.data.inventory.items.forEach((element, index, object) => {
+            if (element.index == item)
+            {
+                found = true;
+                element.count += count
+
+                if (element.count < 1)
+                {
+                    object.splice(index, 1)
+                }
+            }
+        });
+
+        if (!found)
+        {
+            this.data.inventory.items.push({index: item, count: count, equipped: 0})
+        }
+
+        console.log(this.data.inventory)
+
+        return this.data.inventory
+    }
+    
+    get_inventory_buffer()
     {
         //Create buffer from inventory data
         let buffer:Buffer = Buffer.alloc(this.data.inventory.slots * 6); // 6 bytes per slot (2 for index, 2 for count, 2 for equip)
