@@ -821,6 +821,26 @@ class Player
                 }
             } break;
 
+            case CommandType.RESPAWN:
+            {
+                //Set player position to door X and Y
+                let destroyBuffer = Buffer.alloc(1);
+                destroyBuffer.writeUInt8(0);
+
+                let spawn = find_spawn(this.world)
+
+                let curX = Buffer.alloc(2); 
+                curX.writeUInt16LE(spawn[0]*32, 0);
+                let curY = Buffer.alloc(2); 
+                curY.writeUInt16LE(spawn[1]*32, 0);
+
+                this.x = spawn[0]*32
+                this.y = spawn[1]*32
+
+                send_data(this.socket, DataType.PLAYER_MOVEMENT_DATA, this.local_identifier, destroyBuffer, curX, curY)
+                broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer, curX, curY)
+            } break;
+
             case CommandType.ACTION_BUBBLES:
             {
                 const action = reader.readInt16()
