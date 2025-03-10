@@ -595,6 +595,10 @@ class Player
 
                     //player wrench
                     online.forEach(element => {
+                        //ignore elements that are innactive, or not in the world
+                        if (element.active == false) return;
+                        if (element.world != this.world) return;
+
                         if (point_in_rectangle(raw_click_x, raw_click_y, element.x, element.y, element.x + 32, element.y + 32))
                             update_dialog(this, new Dialog()
                             .ItemText(true, element.profile.data.username, 72, 0)
