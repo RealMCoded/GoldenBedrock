@@ -366,12 +366,19 @@ class Player
                 }
                 else
                 {
-                    //double click actions
-                    update_dialog(this, new Dialog()
-                        .ItemText(true, item_data.name, 72, this.profile.data.inventory.items[slot].index)
-                        .Text(true, item_data.info, 48)
-                        .Button(true, "close", "Close")
-                    )
+                    //Double Click
+                    let item_dialog:Dialog = new Dialog("menu.item")
+
+                    item_dialog.ItemText(true, item_data.name, 72, this.profile.data.inventory.items[slot].index)
+                    item_dialog.Text(true, item_data.info, 48)
+                    item_dialog.Text(true, `Rarity: ${item_data.rarity}`, 48)
+                    item_dialog.Text(true, `Farmability: ${item_data.farmability}`, 48)
+
+                    if (item_data.can_drop) item_dialog.Button(true, "item.drop", "Drop")
+                    if (item_data.can_trash) item_dialog.Button(true, "item.drop", "Trash")
+
+                    item_dialog.Button(true, "close", "Close")
+                    update_dialog(this, item_dialog)
                 }
             } break;
 
