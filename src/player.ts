@@ -173,7 +173,6 @@ class Player
                 }
 
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~rConnected to GoldenBedrock successfully!"))
-
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("Learn more at ~5https://github.com/RealMCoded/GoldenBedrock"))
             } break;
 
@@ -193,17 +192,17 @@ class Player
                 if (account == null)
                 {
                     success = false;
-                    message = Buffer.from(`~3Account "${uname}" does not exit on this server. ~0Go register it!\0`, `utf-8`)
+                    message = string_buffer(`~3Account "${uname}" does not exit on this server. ~0Go register it!`)
                 }
                 else if (passw != account.token)
                 {
                     success = false;
-                    message = Buffer.from(`~3Login failed! ~0Incorrect token.\0`, `utf-8`)
+                    message = string_buffer(`~3Login failed! ~0Incorrect token.`)
                 }
                 else
                 {
                     success = true;
-                    message = Buffer.from(`~5Welcome back, ${uname}! ~0There are ${online.length} players online.\0`, `utf-8`)
+                    message = string_buffer(`~5Welcome back, ${uname}! ~0There are ${online.length} players online.`)
                 }
 
                 //login response
@@ -213,8 +212,8 @@ class Player
                 if (success)
                 {
                     loginInfoBuffer = Buffer.concat([
-                        Buffer.from(uname + '\0', 'utf8'),
-                        Buffer.from(passw + '\0', 'utf8')
+                        string_buffer(uname),
+                        string_buffer(passw)
                     ]);
                 }
                 send_data(this.socket, DataType.LOGIN, successBuffer, message, loginInfoBuffer)
@@ -263,29 +262,29 @@ class Player
                 if (account != null)
                 {
                     success = false
-                    message = Buffer.from(`~3Registration failed! ~0An account with that name already exists.\0`, `utf-8`)
+                    message = string_buffer(`~3Registration failed! ~0An account with that name already exists.`)
                 }
                 else if (uname.length < 1 || email.length < 1)
                 {
                     success = false
-                    message = Buffer.from(`~3Registration failed! ~0You must provide a username and email.\0`, `utf-8`)
+                    message = string_buffer(`~3Registration failed! ~0You must provide a username and email.`)
                 }
                 else if (uname.length < 2 || uname.length > 12)
                 {
                     success = false
-                    message = Buffer.from(`~3Registration failed! ~0Usernames must be between 3-12 characters long.\0`, `utf-8`)
+                    message = string_buffer(`~3Registration failed! ~0Usernames must be between 3-12 characters long.`)
                 }
                 else if (validate_string(uname) == false)
                 {
                     success = false
-                    message = Buffer.from(`~3Registration failed! ~0Usernames can only contain characters A-z 0-9.\0`, `utf-8`)
+                    message = string_buffer(`~3Registration failed! ~0Usernames can only contain characters A-z 0-9.`)
                 }
                 //TODO: Blacklisted name check
                 else
                 {
                     account = await User.create({username: uname, email, token})
                     success = true
-                    message = Buffer.from(`~1Welcome to GoldenBedrock, ${uname}! ~0You can now login.\0`, `utf-8`)
+                    message = string_buffer(`~1Welcome to GoldenBedrock, ${uname}! ~0You can now login.`)
                 }
 
                 let successBuffer = Buffer.alloc(1)
@@ -295,8 +294,8 @@ class Player
                 if (success)
                 {
                     loginInfoBuffer = Buffer.concat([
-                        Buffer.from(uname + '\0', 'utf8'),
-                        Buffer.from(token + '\0', 'utf8')
+                        string_buffer(uname),
+                        string_buffer(token)
                     ]);
                 }
 
@@ -317,15 +316,13 @@ class Player
             case CommandType.RECOVER:
             {
                 //TODO: actual recovery. for now just say its not working
-                let message = Buffer.from(`~3Recovery failed! ~0Recovery does not work at the moment.\0`, `utf-8`)
-
-                send_data(this.socket, DataType.RECOVERY, message)
+                send_data(this.socket, DataType.RECOVERY, string_buffer("~3Recovery failed! ~0Recovery does not work at the moment."))
             } break;
 
             case CommandType.ESC_MENU:
             {
                 update_dialog(this, new Dialog("menu.main")
-                .ItemText(true, `Menu - ~1${this.world}`, 72, 0)
+                .ItemText(true, `Menu - ~1${this.world}`, 72, 3)
                 .Button(true, "warp", "Warp")
                 .Button(true, "respawn", "Respawn")
                 .Button(true, "shop", "Shop")
@@ -361,7 +358,7 @@ class Player
                     let notification_icon = Buffer.alloc(2)
                     notification_icon.writeUint16LE(this.profile.data.inventory.items[slot].index)
     
-                    let text = Buffer.from(item_data.name + "\0", 'utf-8')
+                    let text = string_buffer(item_data.name)
                     send_data(this.socket, 17, notification_time, notification_icon, text)
                 }
                 else
@@ -421,7 +418,7 @@ class Player
                     {
                         if (sub_action == "motd.linkbutton")
                         {
-                            let uri = Buffer.from(motd.LinkButtonLink + "\0", 'utf-8')
+                            let uri = string_buffer(motd.LinkButtonLink)
                             send_data(this.socket, DataType.URL_OPEN, uri)
                         }
                     } break;
@@ -431,7 +428,7 @@ class Player
                         if (sub_action == "warp")
                         {
                             update_dialog(this, new Dialog("menu.warp")
-                            .ItemText(true, "Warp to world", 72, 0)
+                            .ItemText(true, "Warp to world", 72, 3)
                             .Text(true, "Where do you want to go?", 50)
                             .TextBox(true, "worldName", "", 32)
                             .Text(true, "World name must be 1-32 characters long, only A-Z and 0-9 characters are allowed", 25)
@@ -457,10 +454,8 @@ class Player
                         }
                         else if (sub_action == "bug")
                         {
-                            let message = Buffer.from(`~5Opening bug report page!\0`, 'utf-8')
-                            send_data(this.socket, DataType.CONSOLE_MESSAGE, message)
-                            let uri = Buffer.from("https://github.com/RealMCoded/GoldenBedrock/issues\0", 'utf-8')
-                            send_data(this.socket, DataType.URL_OPEN, uri)
+                            send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Opening bug report page!"))
+                            send_data(this.socket, DataType.URL_OPEN, string_buffer("https://github.com/RealMCoded/GoldenBedrock/issues"))
                         }
                     } break;
 
@@ -475,8 +470,7 @@ class Player
                         {
                             if (validate_string((dict[0].value as string)) == false || (dict[0].value as string).length == 0 || (dict[0].value as string).length > 32)
                             {
-                                let message = Buffer.from("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9.\0", 'utf-8');
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9."));
                                 return;
                             }
 
@@ -502,8 +496,7 @@ class Player
 
                             if (world == "ERR_NO_OTHER_WORLDS")
                             {
-                                let message = Buffer.from("~3Warp failed! ~0No other worlds exist yet. Go make one!\0", 'utf-8');
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Warp failed! ~0No other worlds exist yet. Go make one!"));
                                 return;
                             }
 
@@ -593,7 +586,6 @@ class Player
                         hardness_buffer.writeInt16LE(hardness+1)
     
                         send_data(this.socket, DataType.TILE_PUNCH, x_buffer, y_buffer, hit_buffer, hardness_buffer)
-
                         broadcast_data(this.id, DataType.TILE_PUNCH, x_buffer, y_buffer, hit_buffer, hardness_buffer)
                     }
                 }
@@ -833,7 +825,7 @@ class Player
                     let notification_icon = Buffer.alloc(2)
                     notification_icon.writeUint16LE(world_data.foreground)
     
-                    let text = Buffer.from("Tile\0", 'utf-8')
+                    let text = string_buffer("Tile")
                     send_data(this.socket, 17, notification_time, notification_icon, text)
                 }
             } break;
@@ -883,12 +875,12 @@ class Player
                 {
                     //TODO: Filtering
                     //console
-                    let msg = Buffer.from(`[~1${this.profile.data.username}~0] ${mymessage}\0`, 'utf8')
+                    let msg = string_buffer(`[~1${this.profile.data.username}~0] ${mymessage}`)
                     broadcast_data(this.id, DataType.CONSOLE_MESSAGE, msg)
                     send_data(this.socket, DataType.CONSOLE_MESSAGE, msg)
 
                     //above player
-                    let render_msg = Buffer.from(mymessage + "\0", 'utf8')
+                    let render_msg = string_buffer(mymessage)
                     let visibleTime = Buffer.alloc(2)
                     visibleTime.writeUInt16LE(25)
 

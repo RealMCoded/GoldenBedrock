@@ -17,6 +17,11 @@ function validate_string(string:string)
     return regex.test(string)
 }
 
+/**
+ * Creates a null terminated String buffer.
+ * @param string 
+ * @returns Buffer
+ */
 function string_buffer(string:string) : Buffer
 {
     return Buffer.from(string + "\0", 'utf-8')

@@ -61,8 +61,6 @@ function generate_world()
     {
         for(let world_x = 0; world_x < 100; world_x++)
         {
-
-            //TODO: Deal with double tiles. Probably generate randomness before putting dirt?
             world_data.tiles.foreground.push({x: world_x, y: world_y, id: 9, data:[]})
             world_data.tiles.background.push({x: world_x, y: world_y, id: 15, data:[]})
 
