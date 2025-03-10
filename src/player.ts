@@ -607,6 +607,8 @@ class Player
                     {
                         case ITEM_TYPE.NONE: {} break;
                         case ITEM_TYPE.FOREGROUND: {
+                            if (world_data.foreground !== 0) return;
+
                             let x_buffer = Buffer.alloc(2)
                             x_buffer.writeInt16LE(click_x)
                 
@@ -629,6 +631,8 @@ class Player
                             send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
                         } break;
                         case ITEM_TYPE.BACKGROUND: {
+                            if (world_data.background !== 0) return;
+
                             let x_buffer = Buffer.alloc(2)
                             x_buffer.writeInt16LE(click_x)
                 
