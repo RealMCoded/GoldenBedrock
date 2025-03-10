@@ -533,8 +533,14 @@ class Player
 
                     if (world_data.foreground == 0 && world_data.background == 0) return;
 
+                    let hardness:number = 0;
+                    if (layer == 1)
+                        hardness = items[world_data.background].hardness
+                    else if (layer == 2)
+                        hardness = items[world_data.foreground].hardness
+
                     //Check for tile in that location
-                    if (click_count > 2)
+                    if (click_count > hardness)
                     {
                         let x_buffer = Buffer.alloc(2)
                         x_buffer.writeInt16LE(click_x)
@@ -574,10 +580,10 @@ class Player
                         y_buffer.writeInt16LE(click_y)
             
                         let hit_buffer = Buffer.alloc(2)
-                        hit_buffer.writeInt16LE(click_count + 1)
+                        hit_buffer.writeInt16LE(click_count+1)
                                         
                         let hardness_buffer = Buffer.alloc(2)
-                        hardness_buffer.writeInt16LE(3)
+                        hardness_buffer.writeInt16LE(hardness+1)
     
                         send_data(this.socket, DataType.TILE_PUNCH, x_buffer, y_buffer, hit_buffer, hardness_buffer)
 
