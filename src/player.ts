@@ -626,7 +626,7 @@ class Player
     
                             modify_tile(this.world, click_x, click_y, 2, item)
 
-                            this.profile.edit_inventory(item, -1)
+                            await this.profile.edit_inventory(item, -1)
                             let invData:Buffer = this.profile.get_inventory_buffer()
                             send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
                         } break;
@@ -649,7 +649,7 @@ class Player
                             broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             modify_tile(this.world, click_x, click_y, 1, item)
 
-                            this.profile.edit_inventory(item, -1)
+                            await this.profile.edit_inventory(item, -1)
                             let invData:Buffer = this.profile.get_inventory_buffer()
                             send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
                         } break;
@@ -678,7 +678,7 @@ class Player
     
                             modify_tile(this.world, click_x, click_y, 2, item)
 
-                            this.profile.edit_inventory(item, -1)
+                            await this.profile.edit_inventory(item, -1)
                             let invData:Buffer = this.profile.get_inventory_buffer()
                             send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
                         } break;
@@ -707,7 +707,7 @@ class Player
 
                 send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
 
-                this.profile.edit_inventory(drop_item, drop_count)
+                await this.profile.edit_inventory(drop_item, drop_count)
                 let invData:Buffer = this.profile.get_inventory_buffer()
                 send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
 

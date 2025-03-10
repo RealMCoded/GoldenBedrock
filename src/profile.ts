@@ -36,7 +36,7 @@ class PlayerProfile
         this.data[key] = value;
     }
 
-    edit_inventory(item:item_id, count:number)
+    async edit_inventory(item:item_id, count:number)
     {
         let found:boolean = false;
 
@@ -57,6 +57,11 @@ class PlayerProfile
         {
             this.data.inventory.items.push({index: item, count: count, equipped: 0})
         }
+
+        //save em
+        let account = await User.findOne({where: {username:this.data.username}})
+        if (account)
+            await account.update({inventory: this.data.inventory})
 
         return this.data.inventory
     }
