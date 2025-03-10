@@ -60,7 +60,7 @@ class PlayerProfile
             this.data.inventory.items.push({index: item, count: count, equipped: 0})
         }
 
-        await user_db.update({inventory: this.data.inventory})
+        await this.user_db.update({inventory: this.data.inventory})
 
         return this.data.inventory
     }
