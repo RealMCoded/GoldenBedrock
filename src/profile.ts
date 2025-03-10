@@ -58,8 +58,6 @@ class PlayerProfile
             this.data.inventory.items.push({index: item, count: count, equipped: 0})
         }
 
-        console.log(this.data.inventory)
-
         return this.data.inventory
     }
     
