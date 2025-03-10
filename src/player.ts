@@ -222,6 +222,14 @@ class Player
                 {
                     await this.profile.load_profile(uname)
 
+                    online.forEach(element => {
+                        if (element.profile.data.username == this.profile.data.username && element.socket != this.socket)
+                        {
+                            send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Account already online. ~0Kicking other instance."))
+                            element.close()
+                        }
+                    });
+
                     if (motd.render)
                         update_dialog(this, motd.messageOfTheDay)
 
