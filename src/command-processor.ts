@@ -179,4 +179,31 @@ commands.register_command("usrref", (player, args) => {
     send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
 })
 
+commands.register_command("nerdstats", (player, args) => {
+    //store node memory usage
+    const mem = `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100) / 100} MB`;
+    //store node uptime
+    const uptime = `${(Math.round(process.uptime() * 100) / 100)/60} minutes`;
+    //store node version
+    const version = process.version;
+    //store node platform
+    const platform = process.platform;
+    //store node arch
+    const arch = `${process.arch}`;
+    //store node cpu speed
+    const cpuSpeed = `${Math.round(process.cpuUsage().system / 1000 / 1000 * 100) / 100} MHz`;
+    //store node total cpu usage
+    const cpuUsage = `${Math.round(process.cpuUsage().user / 1000 / 1000 * 100) / 100} MHz`;
+
+    update_dialog(player, new Dialog()
+    .ItemText(true, "Server Stats", 72, 3)
+    .Text(true, `Mem Usage: ${mem}`, 50)
+    .Text(true, `CPU Usage: ${cpuUsage}`, 50)
+    .Text(true, `Uptime: ${uptime}`, 50)
+    .Text(true, `Node Version: ${version}`, 50)
+    .Text(true, `Platform (arch) : ${platform} (${arch})`, 50)
+    .Button(true, "xit", "cool, thx.")
+    )
+})
+
 export { commands }
