@@ -9,6 +9,7 @@ import { generate_token, point_in_rectangle, string_buffer, validate_string } fr
 import { convert_to_game_format, create_world, find_spawn, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
 import { item_from_id, ITEM_TYPE } from "./item-types";
 import { item_id, items } from "./item-id";
+import { commands } from "./command-processor";
 
 enum CommandType
 {
@@ -839,174 +840,7 @@ class Player
                 {
                     send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5${mymessage}`))
 
-                    let args = mymessage.split(" ")
-
-                    //TODO: transition this to command-processor.ts
-                    switch(args[0])
-                    {
-                        case "/motd":
-                        {
-                            if (motd.render)
-                                update_dialog(this, motd.messageOfTheDay)
-                            else
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3MOTD has been disabled on this server."))
-                        } break;
-
-                        case "/e":
-                        {
-                            if (args.length == 1)
-                            {
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /e <emote>. ~0Valid emotes: wave, dance"));
-                                return;
-                            }
-
-                            //emote ids: 1, 3. emote 2 exists but automatically ends.
-                            let emoteid:number;
-                            let emote_duration:number;
-
-                            if (args[1] == "wave")
-                            {
-                                emoteid = 1
-                                emote_duration = 5
-                            }
-                            else if (args[1] == "dance")
-                            {
-                                emoteid = 3
-                                emote_duration = 255 //this is as long as the emote can last because of how u8 works.
-                            }
-                            else
-                            {
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /e <emote>. ~0Valid emotes: wave, dance"));
-                                return;
-                            }
-
-                            let dance_id_buffer = Buffer.alloc(1)
-                            dance_id_buffer.writeUint8(emoteid)
-
-                            let dance_frame_buffer = Buffer.alloc(1)
-                            dance_frame_buffer.writeUint8(0)
-
-                            let dance_time_buffer = Buffer.alloc(1)
-                            dance_time_buffer.writeUint8(emote_duration)
-
-                            send_data(this.socket, DataType.EMOTES, this.local_identifier, dance_id_buffer, dance_frame_buffer, dance_time_buffer)
-                        } break;
-
-                        case "/g":
-                        {
-                            if (args.length == 1)
-                            {
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /g <message>. ~0This will cost you ~1200 ~0gems."));
-                                return;
-                            }
-
-                            let message = Buffer.from(`~5[Global Message from ~1${this.profile.data.username}~5]~0 ${mymessage.substring(3)}\0`, 'utf-8');
-                            let sentmessage = Buffer.from(`~4Global message sent!\0`, 'utf-8');
-        
-                            online.forEach(element => {
-                                send_data(element.socket, DataType.CONSOLE_MESSAGE, message)
-                            });
-
-                            send_data(this.socket, DataType.CONSOLE_MESSAGE, sentmessage)
-                        } break;
-
-                        case "/warp":
-                        {
-                            if (validate_string(args[1]) == false || (args.length == 1) || (args[1].length == 0 || args[1].length > 32)) 
-                            {
-                                let message = Buffer.from("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9.\0", 'utf-8');
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
-                                return;
-                            }
-                            
-                            let destroyBuffer = Buffer.alloc(1);
-                            destroyBuffer.writeUInt8(1);
-                            broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-
-                            this.warp(args[1])
-                        } break;
-
-                        case "/usredit":
-                        {
-                            if (args.length != 3) 
-                            {
-                                let message = Buffer.from(`~5Usage: /usredit <key> <value>\0`, 'utf-8');
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
-                                return;
-                            }
-
-                            try
-                            {
-                                this.profile.set(args[1], args[2])
-                                let message = Buffer.from(`~5Key "${args[1]}" set to "${args[2]}"\0`, 'utf-8');
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
-                            }
-                            catch(e)
-                            {
-                                let message = Buffer.from(`~3Error! ~0${e}\0`, 'utf-8');
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
-                                return;
-                            }
-                        } break;
-
-                        case "/item":
-                        {
-                            if (args.length != 3) 
-                            {
-                                let message = Buffer.from(`~5Usage: /item <id> <amount>\0`, 'utf-8');
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
-                                return;
-                            }
-
-                            //this.profile.data.inventory.items.push({index: +args[1], count: +args[2], equipped: 0})
-                            this.profile.edit_inventory(+args[1], +args[2])
-
-                            //Send inventory data
-                            let invData:Buffer = this.profile.get_inventory_buffer()
-                            send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
-                            let message = Buffer.from(`~5Gave ${args[2]}x "${items[+args[1]].name}"\0`, 'utf-8');
-                            send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
-                        } break;
-
-                        case "/find":
-                        {
-                            if (args.length != 2) 
-                            {
-                                let message = Buffer.from(`~5Usage: /find <name>\0`, 'utf-8');
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
-                                return;
-                            }
-
-                            let itemList:Dialog = new Dialog("menu.items")
-
-                            itemList.ItemText(true, `Items containing "${args[1]}"`, 72, 0)
-                            
-                            items.forEach((element, index) => {
-                                if (element.name.toLowerCase().includes(args[1].toLowerCase()))
-                                    itemList.ItemText(true, `${index} | ${element.name}`, 48, index)
-                            });
-
-                            itemList.Button(true, "close", "Close")
-
-                            update_dialog(this, itemList)
-                        } break;
-
-                        case "/usrref":
-                        {
-                            let message = Buffer.from(`~5Player refreshed.\0`, 'utf-8');
-                            send_data(this.socket, DataType.CONSOLE_MESSAGE, message);
-
-                            let profileData = this.profile.player_data_buffer()
-                            send_data(this.socket, DataType.PLAYER_PROFILE_DATA, this.local_identifier, profileData)
-                            broadcast_data(this.id, DataType.PLAYER_PROFILE_DATA, this.global_identifier, profileData)
-                        } break;
-
-                        default:
-                        {
-                            let message = Buffer.from(`~3Unknown Command: ~5${mymessage}\0`, 'utf-8')
-                            send_data(this.socket, DataType.CONSOLE_MESSAGE, message)
-                        } break;
-                    }
+                    commands.process_command(this, mymessage)
                 }
                 else
                 {
@@ -1018,7 +852,6 @@ class Player
 
                     //above player
                     let render_msg = Buffer.from(mymessage + "\0", 'utf8')
-
                     let visibleTime = Buffer.alloc(2)
                     visibleTime.writeUInt16LE(25)
 
