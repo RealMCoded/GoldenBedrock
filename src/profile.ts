@@ -9,6 +9,7 @@ class PlayerProfile
 {
     socket:net.Socket;
     data:User = new User().dataValues
+    user_db:User;
     country:string = "";
     frozen:boolean = false;
     visible:boolean = true;
@@ -29,6 +30,7 @@ class PlayerProfile
         }
 
         this.data = account?.dataValues
+        this.user_db = account
     }
 
     async set(key:string, value:any)
@@ -58,10 +60,7 @@ class PlayerProfile
             this.data.inventory.items.push({index: item, count: count, equipped: 0})
         }
 
-        //save em
-        let account = await User.findOne({where: {username:this.data.username}})
-        if (account)
-            await account.update({inventory: this.data.inventory})
+        await user_db.update({inventory: this.data.inventory})
 
         return this.data.inventory
     }
