@@ -17,7 +17,11 @@ GoldenBedrock is an experimental private server for the game [Breaworlds](https:
 
 GoldenBedrock is still heavy work in progress. 
 
-Players can warp to worlds and see each other. Players can also break tiles in the world. However, tiles that are placed are not reflected.
+Only very basic gameplay works right now.
+
+Players can place and break tiles, but ownership of worlds does not work yet.
+
+For a full list of features that work and don't work, read [the progress page](./PROGRESS.MD).
 
 ## Playing
 
@@ -66,6 +70,20 @@ RECOVERY_MAILER_PASSWORD="" #Password for the recovery mailer.
 ```
 
 Feel free to change these values as you wish. Player cap should be OK at larger values, I use 100 as a cap just to be safe.
+
+## Frequently Asked Questions
+
+**Q:** Why are you using such an old version when newer versions can be modified?
+
+**A:** The build that I target (3.8.3) is one of the last builds that quu98 originally compiled before selling the game. 
+
+**Q:** Will ou ever target newer versions?
+
+**A:** Probably not, only for the reason that I haven't really played those versions all that much. You can, however, fork this server and make the modifications yourself!
+
+**Q:** Have you looked at the server source code leak that uses the exact same client version that you are targeting? Are you using it as a reference? 
+
+**A:** I am aware of the 3.8.3 server source code and client being online. However, the code is so unreadable that it doesn't work that well as a reference. The only thing I have taken from it *(and the only thing i plan to take from it)* is the item listing. You wouldn't want to type out the information for 1,242 items right? As for the client, i've had it wayyyyy before it got leaked online.
 
 ## License
 

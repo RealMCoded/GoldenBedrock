@@ -64,7 +64,6 @@ Note: `~r` creates rainbow text.
 
 ![Tilde Guide](./readme/tilde.png)
 
-
 ### Other formatting
 
 Items under this category create animated text.
