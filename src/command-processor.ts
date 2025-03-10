@@ -42,6 +42,7 @@ class SlashCommands
         }
         catch(e)
         {
+            console.error(e)
             send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~3Command Error: ~5${e}`))
         }
     }
@@ -149,10 +150,10 @@ commands.register_command("find", (player, args) => {
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /find <name>. ~0Lists items containing a string"))
 
     let itemList:Dialog = new Dialog("menu.items")
-    itemList.ItemText(true, `Items containing "${args[1]}"`, 72, 0)
+    itemList.ItemText(true, `Items containing "${args[0]}"`, 72, 3)
 
     items.forEach((element, index) => {
-        if (element.name.toLowerCase().includes(args[1].toLowerCase()))
+        if (element.name.toLowerCase().includes(args[0].toLowerCase()))
             itemList.ItemText(true, `${index} | ${element.name}`, 48, index)
     });
 
