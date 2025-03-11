@@ -567,6 +567,8 @@ class Player
                         {
                             drop_item--
                             item_count = Math.floor(Math.random() * (5 - 1) + 1)
+                        }
+
                         let destroyBuffer = Buffer.alloc(1)
                         destroyBuffer.writeUint8(0)
                         let indexBuffer = Buffer.alloc(2)
@@ -582,7 +584,7 @@ class Player
                         broadcast_data(this.id, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
 
                         //give gem rewards. TODO: proper calculations.
-                        this.profile.set_gems(Math.floor(Math.random() * (25 - 0) + 0))
+                        this.profile.set_gems(Math.floor(Math.random() * (5 - 0) + 0))
                     }
                     else
                     {

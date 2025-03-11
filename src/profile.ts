@@ -141,17 +141,15 @@ class PlayerProfile
             return buf;
         });
 
-        /*
         //this is my old outfit, for testing reasons.
         equipped_items[0].writeUInt16LE(item_id.messy_brown_hair)
         equipped_items[1].writeUInt16LE(item_id.golden_egg_head)
-        equipped_items[2].writeUInt16LE(item_id.golden_nightmare_scythe)
+        equipped_items[2].writeUInt16LE(item_id.nightmare_scythe)
         equipped_items[4].writeUInt16LE(item_id.black_pants)
         equipped_items[5].writeUInt16LE(item_id.black_shoes)
         equipped_items[6].writeUInt16LE(item_id.diamond_cape)
         equipped_items[7].writeUInt16LE(item_id.dark_sweater)
         equipped_items[11].writeUInt16LE(item_id.black_wool_scarf)
-        */
 
         let itemEffect = Buffer.alloc(2)
         itemEffect.writeUInt16LE(0)
