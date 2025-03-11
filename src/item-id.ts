@@ -17250,7 +17250,7 @@ const items:item_data[] = [
 	is_solid:  true
 },
 {
-	name: "Yellow Lightsaber Seed",
+	name: "Green Lightsaber Seed",
 	info: "",
 	type: ITEM_TYPE.TREE,
 	body_layer: BODY_LAYER.none,
