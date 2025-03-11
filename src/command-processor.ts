@@ -107,7 +107,7 @@ commands.register_command("e", (player, args) => {
 })
 
 commands.register_command("g", (player, args) => {
-    if (args.length < 0)
+    if (args.length == 0)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /g <message>. ~0This will cost you ~1200 ~0gems."))
 
     let global_message = args.join(" ")
