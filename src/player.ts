@@ -560,12 +560,19 @@ class Player
                         modify_tile(this.world, click_x, click_y, layer, 0)
 
                         //Summon drop of item
+                        let drop_item = layer == 1 ? world_data.background : world_data.foreground
+                        let item_count = 1
+
+                        if (drop_item % 2 == 0) //is even
+                        {
+                            drop_item--
+                            item_count = Math.floor(Math.random() * (5 - 1) + 1)
                         let destroyBuffer = Buffer.alloc(1)
                         destroyBuffer.writeUint8(0)
                         let indexBuffer = Buffer.alloc(2)
-                        indexBuffer.writeUint16LE(layer == 1 ? world_data.background : world_data.foreground)
+                        indexBuffer.writeUint16LE(drop_item)
                         let countBuffer = Buffer.alloc(2)
-                        countBuffer.writeUint16LE(1)
+                        countBuffer.writeUint16LE(item_count)
                         let xBuffer = Buffer.alloc(2)
                         xBuffer.writeUint16LE((click_x*32)+8)
                         let yBuffer = Buffer.alloc(2)
