@@ -571,6 +571,7 @@ class Player
                         yBuffer.writeUint16LE((click_y*32)+8)
 
                         send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                        broadcast_data(this.id, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
 
                         //give gem rewards. TODO: proper calculations.
                         this.profile.set_gems(Math.floor(Math.random() * (25 - 0) + 0))
@@ -636,7 +637,6 @@ class Player
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-    
                             modify_tile(this.world, click_x, click_y, 2, item)
 
                             await this.profile.edit_inventory(item, -1)
@@ -686,9 +686,7 @@ class Player
                             place_buffer.writeInt16LE(item)
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-    
                             broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-    
                             modify_tile(this.world, click_x, click_y, 2, item)
 
                             await this.profile.edit_inventory(item, -1)
@@ -719,6 +717,7 @@ class Player
                 yBuffer.writeUint16LE(drop_y)
 
                 send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                broadcast_data(this.id, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
 
                 await this.profile.edit_inventory(drop_item, drop_count)
                 let invData:Buffer = this.profile.get_inventory_buffer()
