@@ -371,8 +371,9 @@ class Player
                     item_dialog.Text(true, `Rarity: ${item_data.rarity}`, 48)
                     item_dialog.Text(true, `Farmability: ${item_data.farmability}`, 48)
 
+                    if (item_data.type == ITEM_TYPE.EQUIPPABLE) item_dialog.Button(true, "item.equip", "Equip")
                     if (item_data.can_drop) item_dialog.Button(true, "item.drop", "Drop")
-                    if (item_data.can_trash) item_dialog.Button(true, "item.drop", "Trash")
+                    if (item_data.can_trash) item_dialog.Button(true, "item.trash", "Trash")
 
                     item_dialog.Button(true, "close", "Close")
                     update_dialog(this, item_dialog)
