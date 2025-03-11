@@ -17,7 +17,6 @@ import { Filter } from "bad-words";
 import sequelize from "./sequelize";
 import User from "./models/User";
 import World from "./models/World"
-
 let online:Player[] = [];
 //let activeWorlds:GameWorld[] = []
 //let wordfilter:Filter = new Filter()

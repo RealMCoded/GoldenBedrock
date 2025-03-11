@@ -558,6 +558,7 @@ class Player
                         broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                         modify_tile(this.world, click_x, click_y, layer, 0)
 
+                        //Summon drop of item
                         let destroyBuffer = Buffer.alloc(1)
                         destroyBuffer.writeUint8(0)
                         let indexBuffer = Buffer.alloc(2)
@@ -570,6 +571,9 @@ class Player
                         yBuffer.writeUint16LE((click_y*32)+8)
 
                         send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+
+                        //give gem rewards. TODO: proper calculations.
+                        this.profile.set_gems(Math.floor(Math.random() * (25 - 0) + 0))
                     }
                     else
                     {
@@ -768,6 +772,11 @@ class Player
                 let profileData = this.profile.player_data_buffer()
                 send_data(this.socket, DataType.PLAYER_PROFILE_DATA, this.local_identifier, profileData)
                 broadcast_data(this.id, DataType.PLAYER_PROFILE_DATA, this.global_identifier, profileData)
+
+                //gems
+                let gems = Buffer.alloc(4)
+                gems.writeUint32LE(this.profile.data.gems)
+                send_data(this.socket, DataType.CURRENCY_GEMS, gems)
 
                 //Tell the client about the other players in the world
                 online.forEach(element => {

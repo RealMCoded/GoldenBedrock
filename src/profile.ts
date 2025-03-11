@@ -4,12 +4,12 @@ import * as net from "net";
 import User from "./models/User";
 import { get_flag } from "./utils";
 import { item_id } from "./item-id";
+import { DataType, send_data } from "./data";
 
 class PlayerProfile
 {
     socket:net.Socket;
     data:User = new User().dataValues
-    user_db:User;
     country:string = "";
     frozen:boolean = false;
     visible:boolean = true;
@@ -30,12 +30,24 @@ class PlayerProfile
         }
 
         this.data = account?.dataValues
-        this.user_db = account
     }
 
     async set(key:string, value:any)
     {
         this.data[key] = value;
+    }
+
+    async set_gems(amount:number)
+    {
+        this.data.gems += amount
+
+        let account = await User.findOne({where: {username:this.data.username}})
+        await account.update({gems: this.data.gems})
+
+        let gems = Buffer.alloc(4)
+        gems.writeUint32LE(this.data.gems)
+
+        send_data(this.socket, DataType.CURRENCY_GEMS, gems)
     }
 
     async edit_inventory(item:item_id, count:number)
@@ -60,7 +72,8 @@ class PlayerProfile
             this.data.inventory.items.push({index: item, count: count, equipped: 0})
         }
 
-        await this.user_db.update({inventory: this.data.inventory})
+        let account = await User.findOne({where: {username:this.data.username}})
+        await account.update({inventory: this.data.inventory})
 
         return this.data.inventory
     }
@@ -130,14 +143,14 @@ class PlayerProfile
 
         /*
         //this is my old outfit, for testing reasons.
-        equipped_items[1].writeUInt16LE(item_id.golden_egg_head)
         equipped_items[0].writeUInt16LE(item_id.messy_brown_hair)
+        equipped_items[1].writeUInt16LE(item_id.golden_egg_head)
         equipped_items[2].writeUInt16LE(item_id.golden_nightmare_scythe)
-        equipped_items[11].writeUInt16LE(item_id.black_wool_scarf)
         equipped_items[4].writeUInt16LE(item_id.black_pants)
         equipped_items[5].writeUInt16LE(item_id.black_shoes)
         equipped_items[6].writeUInt16LE(item_id.diamond_cape)
         equipped_items[7].writeUInt16LE(item_id.dark_sweater)
+        equipped_items[11].writeUInt16LE(item_id.black_wool_scarf)
         */
 
         let itemEffect = Buffer.alloc(2)
