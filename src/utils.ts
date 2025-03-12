@@ -1,3 +1,4 @@
+import { online } from "./main";
 
 function generate_token()
 {
@@ -15,6 +16,18 @@ function validate_string(string:string)
     let regex = /^[A-Za-z0-9]+$/
     
     return regex.test(string)
+}
+
+function account_online(username:string)
+{
+    let is_online:boolean = false;
+    online.forEach(element => {
+        if (element.profile.data.username == username)
+        {
+            is_online = true;
+        }
+    });
+    return is_online;
 }
 
 /**
@@ -295,4 +308,4 @@ function point_in_rectangle(point_x:number, point_y:number, rectangle_x1:number,
 	return false;
 }
 
-export {generate_token, get_flag, string_buffer, point_in_rectangle, validate_string}
+export {generate_token, get_flag, string_buffer, point_in_rectangle, validate_string, account_online}

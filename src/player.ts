@@ -5,7 +5,7 @@ import { PlayerProfile } from "./profile";
 import { Dialog } from "./dialog";
 import { online, motd } from "./main";
 import User from "./models/User";
-import { generate_token, point_in_rectangle, string_buffer, validate_string } from "./utils";
+import { account_online, generate_token, point_in_rectangle, string_buffer, validate_string } from "./utils";
 import { convert_to_game_format, create_world, find_spawn, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
 import { item_from_id, ITEM_TYPE } from "./item-types";
 import { item_id, items } from "./item-id";
@@ -201,6 +201,11 @@ class Player
                     success = false;
                     message = string_buffer(`~3Login failed! ~0The token doesn't match the one associated with this account.`)
                 }
+                else if (account_online(uname))
+                {
+                    success = false;
+                    message = string_buffer(`~3Login failed! ~0This account is already logged in.`)
+                }
                 else
                 {
                     success = true;
@@ -223,14 +228,6 @@ class Player
                 if (success) 
                 {
                     await this.profile.load_profile(uname)
-
-                    online.forEach(element => {
-                        if (element.profile.data.username == this.profile.data.username && element.socket != this.socket)
-                        {
-                            send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Account already online. ~0Kicking other instance."))
-                            element.close()
-                        }
-                    });
 
                     if (motd.render)
                         update_dialog(this, motd.messageOfTheDay)
