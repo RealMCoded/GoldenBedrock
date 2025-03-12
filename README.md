@@ -77,9 +77,9 @@ Feel free to change these values as you wish. Player cap should be OK at larger 
 
 **A:** The build that I target (3.8.3) is one of the last builds that quu98 originally compiled before selling the game. 
 
-**Q:** Will ou ever target newer versions?
+**Q:** Will you ever target newer versions?
 
-**A:** Probably not, only for the reason that I haven't really played those versions all that much. You can, however, fork this server and make the modifications yourself!
+**A:** Probably not, only for the reason that I haven't really played those versions all that much. You can, however, fork this project and make the modifications yourself!
 
 **Q:** Have you looked at the server source code leak that uses the exact same client version that you are targeting? Are you using it as a reference? 
 
