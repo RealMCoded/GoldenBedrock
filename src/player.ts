@@ -97,7 +97,7 @@ class Player
         let worldNameBuffer:Buffer = string_buffer(world)
 
         send_data(this.socket, DataType.WARP, successBuffer, messageBuffer, worldNameBuffer)
-        broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has entered the world.]`))
+        broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has entered the world.]`))
     }
 
     async close()
@@ -110,18 +110,20 @@ class Player
             let destroyBuffer = Buffer.alloc(1);
             destroyBuffer.writeUInt8(1);
 
-            broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, identifier, destroyBuffer)
+            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, identifier, destroyBuffer)
 
-            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has logged out.]`))
+            broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has logged out.]`))
         }
 
         //remove connections
-        online.forEach(element => {
+        online.forEach((element, index) => {
             if (element.socket == this.socket)
-                online.splice(this.id-1, 1)
+            {
+                delete online[index]
+                online.splice(index, 1)
+            }
         });
         this.socket.destroy()
-
         this.log("Destroyed player")
     }
 
@@ -166,7 +168,7 @@ class Player
                         update_dialog(this, new Dialog()
                         .ItemText(true, "~1Unsupported Client", 72, 0)
                         .Text(true, "Your game version is not supported.", 48)
-                        .Text(true, "Please use ~13.8.3~0 for best results.", 48)
+                        .Text(true, "Please use client version ~13.8.3~0.", 48)
                         .Text(true, "", 48)
                         )
                     return;
@@ -197,7 +199,7 @@ class Player
                 else if (passw != account.token)
                 {
                     success = false;
-                    message = string_buffer(`~3Login failed! ~0Incorrect token.`)
+                    message = string_buffer(`~3Login failed! ~0The token doesn't match the one associated with this account.`)
                 }
                 else
                 {
@@ -477,8 +479,8 @@ class Player
 
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
-                            broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-                            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
+                            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
+                            broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
 
                             this.warp(dict[0].value as string)
                         }
@@ -486,8 +488,8 @@ class Player
                         {
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
-                            broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-                            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
+                            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
+                            broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
 
                             this.warp("REWARDS")
                         }
@@ -503,8 +505,8 @@ class Player
 
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
-                            broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-                            broadcast_data(this.id, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
+                            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
+                            broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
     
                             this.warp(world)
                         }
@@ -556,7 +558,7 @@ class Player
                         place_buffer.writeInt16LE(0)
     
                         send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-                        broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+                        broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                         modify_tile(this.world, click_x, click_y, layer, 0)
 
                         //Summon drop of item
@@ -581,7 +583,7 @@ class Player
                         yBuffer.writeUint16LE((click_y*32)+8)
 
                         send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
-                        broadcast_data(this.id, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                        broadcast_data(this, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
 
                         //give gem rewards. TODO: proper calculations.
                         this.profile.set_gems(Math.floor(Math.random() * (5 - 0) + 0))
@@ -601,7 +603,7 @@ class Player
                         hardness_buffer.writeInt16LE(hardness+1)
     
                         send_data(this.socket, DataType.TILE_PUNCH, x_buffer, y_buffer, hit_buffer, hardness_buffer)
-                        broadcast_data(this.id, DataType.TILE_PUNCH, x_buffer, y_buffer, hit_buffer, hardness_buffer)
+                        broadcast_data(this, DataType.TILE_PUNCH, x_buffer, y_buffer, hit_buffer, hardness_buffer)
                     }
                 }
                 else if (item == item_id.wrench)
@@ -646,7 +648,7 @@ class Player
                             place_buffer.writeInt16LE(item)
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-                            broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+                            broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             modify_tile(this.world, click_x, click_y, 2, item)
 
                             await this.profile.edit_inventory(item, -1)
@@ -669,7 +671,7 @@ class Player
                             place_buffer.writeInt16LE(item)
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-                            broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+                            broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             modify_tile(this.world, click_x, click_y, 1, item)
 
                             await this.profile.edit_inventory(item, -1)
@@ -696,7 +698,7 @@ class Player
                             place_buffer.writeInt16LE(item)
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-                            broadcast_data(this.id, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
+                            broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             modify_tile(this.world, click_x, click_y, 2, item)
 
                             await this.profile.edit_inventory(item, -1)
@@ -727,7 +729,7 @@ class Player
                 yBuffer.writeUint16LE(drop_y)
 
                 send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
-                broadcast_data(this.id, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                broadcast_data(this, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
 
                 await this.profile.edit_inventory(drop_item, drop_count)
                 let invData:Buffer = this.profile.get_inventory_buffer()
@@ -775,12 +777,12 @@ class Player
                 this.y = spawn[1]*32
 
                 send_data(this.socket, DataType.PLAYER_MOVEMENT_DATA, this.local_identifier, destroyBuffer, curX, curY)
-                broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer, curX, curY)
+                broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer, curX, curY)
 
                 //Player data
                 let profileData = this.profile.player_data_buffer()
                 send_data(this.socket, DataType.PLAYER_PROFILE_DATA, this.local_identifier, profileData)
-                broadcast_data(this.id, DataType.PLAYER_PROFILE_DATA, this.global_identifier, profileData)
+                broadcast_data(this, DataType.PLAYER_PROFILE_DATA, this.global_identifier, profileData)
 
                 //gems
                 let gems = Buffer.alloc(4)
@@ -833,7 +835,7 @@ class Player
                 let y_buffer = Buffer.alloc(2); 
                 y_buffer.writeUInt16LE(this.y, 0);
 
-                broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, leave, x_buffer, y_buffer)
+                broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, leave, x_buffer, y_buffer)
 
                 //Interactable tiles
                 const world_data = tiles_at_location(this.world, Math.round(this.x/32), Math.round(this.y/32))
@@ -869,7 +871,7 @@ class Player
                 this.y = spawn[1]*32
 
                 send_data(this.socket, DataType.PLAYER_MOVEMENT_DATA, this.local_identifier, destroyBuffer, curX, curY)
-                broadcast_data(this.id, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer, curX, curY)
+                broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer, curX, curY)
             } break;
 
             case CommandType.ACTION_BUBBLES:
@@ -879,7 +881,7 @@ class Player
                 actionBuffer.writeUInt16LE(action)
 
                 send_data(this.socket, DataType.ACTION_BUBBLES, this.local_identifier, actionBuffer)
-                broadcast_data(this.id, DataType.ACTION_BUBBLES, this.global_identifier, actionBuffer)
+                broadcast_data(this, DataType.ACTION_BUBBLES, this.global_identifier, actionBuffer)
             } break;
 
             case CommandType.PLAYER_CHAT:
@@ -898,7 +900,7 @@ class Player
                     //TODO: Filtering
                     //console
                     let msg = string_buffer(`[~1${this.profile.data.username}~0] ${mymessage}`)
-                    broadcast_data(this.id, DataType.CONSOLE_MESSAGE, msg)
+                    broadcast_data(this, DataType.CONSOLE_MESSAGE, msg)
                     send_data(this.socket, DataType.CONSOLE_MESSAGE, msg)
 
                     //above player
@@ -907,7 +909,7 @@ class Player
                     visibleTime.writeUInt16LE(25)
 
                     send_data(this.socket, DataType.PLAYER_MESSAGE, this.local_identifier, render_msg, visibleTime)
-                    broadcast_data(this.id, DataType.PLAYER_MESSAGE, this.global_identifier, render_msg, visibleTime)
+                    broadcast_data(this, DataType.PLAYER_MESSAGE, this.global_identifier, render_msg, visibleTime)
                 }
             } break;
 

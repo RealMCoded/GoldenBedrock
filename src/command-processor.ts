@@ -128,7 +128,7 @@ commands.register_command("warp", (player, args) => {
 
     let destroyBuffer = Buffer.alloc(1);
     destroyBuffer.writeUInt8(1);
-    broadcast_data(player.id, DataType.PLAYER_MOVEMENT_DATA, player.global_identifier, destroyBuffer)
+    broadcast_data(player, DataType.PLAYER_MOVEMENT_DATA, player.global_identifier, destroyBuffer)
 
     player.warp(args[0])
 })
@@ -174,7 +174,7 @@ commands.register_command("usredit", (player, args) => {
 commands.register_command("usrref", (player, args) => {
     let profileData = player.profile.player_data_buffer()
     send_data(player.socket, DataType.PLAYER_PROFILE_DATA, player.local_identifier, profileData)
-    broadcast_data(player.id, DataType.PLAYER_PROFILE_DATA, player.global_identifier, profileData)
+    broadcast_data(player, DataType.PLAYER_PROFILE_DATA, player.global_identifier, profileData)
 
     send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
 })

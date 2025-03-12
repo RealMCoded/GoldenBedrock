@@ -64,12 +64,10 @@ function send_data(socket:net.Socket, data_id:DataType, ...buffer_data:Buffer[])
     }
 }
 
-function broadcast_data(my_id:number, data_id:DataType, ...buffer_data:Buffer[])
+function broadcast_data(player:Player, data_id:DataType, ...buffer_data:Buffer[])
 {
-    //my_id--
-
     online.forEach(element => {
-        if (element.id != my_id && element.active == true && element.world == online[my_id-1].world)
+        if (element.id != player.id && element.active == true && element.world == player.world)
         {
             send_data(element.socket, data_id, ...buffer_data)
         }

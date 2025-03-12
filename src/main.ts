@@ -67,7 +67,7 @@ const server:net.Server = net.createServer(async (c) => {
     }
 
     //add a new player to the online list
-    online.push(new Player(c, online.length+1))
+    online.push(new Player(c, online.length > 0 ? online[online.length-1].id+1 : 1))
 
     //data routing to correct players
     c.on('data', async (data) => {
