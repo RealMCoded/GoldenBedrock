@@ -48,6 +48,7 @@ class Player
     y:number = 0;
     world:string = "";
     currentDialog:string = "";
+    inventory_slot:number = 0;
     local_identifier:Buffer = Buffer.alloc(4)
     global_identifier:Buffer = Buffer.alloc(4)
 
@@ -346,7 +347,8 @@ class Player
                 let doubleClick = reader.readUint8() //thank you quu for making the game send the double click signal 
                 let slot = reader.readUint8()
                 let item_data = item_from_id(this.profile.data.inventory.items[slot].index);
-                console.log(doubleClick, slot)
+
+                this.inventory_slot = slot;
 
                 if (!doubleClick)
                 {
