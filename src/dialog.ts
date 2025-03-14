@@ -140,7 +140,7 @@ class Dialog
         length_buffer = Buffer.alloc(2)
         length_buffer.writeUint16LE(size)
 
-        this.elements.push(id_buffer, lineBreak_buffer, name_buffer, text_buffer, length_buffer)
+        this.elements.push(id_buffer, lineBreak_buffer, value_buffer, name_buffer, text_buffer, length_buffer)
         return this;
     }
 
