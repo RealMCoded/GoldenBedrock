@@ -383,36 +383,41 @@ class Player
 
             case CommandType.DIALOG_ACTION:
             {
+                //TODO: Fix checkboxes sending incorrect data.
                 const worker = reader.readUint16()
                 let header_length = reader.readUint8();
                 let dialog_name = reader.readArrayAsString(header_length)
                 let sub_length = reader.readUint8();
                 let sub_action = reader.readArrayAsString(sub_length)
 
-                console.log(dialog_name)
-                console.log(sub_action)
-
-                let dict:{key:string, value:string|number}[] = []
-
                 let range_str = reader.readUint16()
                 let range_int = reader.readUint16()
 
-                for(var i=0; i < range_str; i++)
+                console.log(dialog_name)
+                console.log(sub_action)
+
+                let dict_str:{key:string, value:string}[] = []
+                let dict_int:{key:string, value:number}[] = []
+
+                for(let i=0; i < range_str; i++)
                 {
                     let key_len = reader.readUint8()
                     let key = reader.readArrayAsString(key_len)
                     let value_len = reader.readUint8()
                     let value = reader.readArrayAsString(value_len)
-                    dict.push({key, value})
+                    dict_str.push({key, value})
                 }
     
-                for(var i=0; i < range_int; i++)
+                for(let i=0; i < range_int; i++)
                 {
                     let key_len = reader.readUint8()
                     let key = reader.readArrayAsString(key_len)
                     let value = reader.readUint16()
-                    dict.push({key, value})
+                    dict_int.push({key, value})
                 }
+
+                console.log(dict_str)
+                console.log(dict_int)
 
                 switch(dialog_name)
                 {
@@ -470,7 +475,7 @@ class Player
                     {
                         if (sub_action == "warp")
                         {
-                            if (validate_string((dict[0].value as string)) == false || (dict[0].value as string).length == 0 || (dict[0].value as string).length > 32)
+                            if (validate_string(dict_str[0].value) == false || dict_str[0].value.length == 0 || dict_str[0].value.length > 32)
                             {
                                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9."));
                                 return;
@@ -481,7 +486,7 @@ class Player
                             broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
                             broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
 
-                            this.warp(dict[0].value as string)
+                            this.warp(dict_str[0].value)
                         }
                         else if (sub_action == "warp.reward")
                         {
