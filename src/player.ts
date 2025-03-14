@@ -621,10 +621,24 @@ class Player
                         if (element.world != this.world) return;
 
                         if (point_in_rectangle(raw_click_x, raw_click_y, element.x, element.y, element.x + 32, element.y + 32))
-                            update_dialog(this, new Dialog()
-                            .ItemText(true, element.profile.data.username, 72, 0)
-                            .Button(true, "close", "Close")
-                            )
+                        {
+                            let user_ui:Dialog = new Dialog("menu.user").ItemText(true, element.profile.data.username, 72, 3)
+                            .Text(true, `Level: ${element.profile.data.level}`, 48)
+
+                            if (element.id == this.id)
+                            {
+                                //it's you!
+                                user_ui
+                                .Text(true, `X: ${this.x/32}, Y:${this.y/32}`, 48)
+                            }
+                            else
+                            {
+                                //it's not you.
+                            }
+                            user_ui.Button(true, "close", "Close")
+                            update_dialog(this, user_ui)
+                            return;
+                        }
                     });
 
                     //tile wrench
