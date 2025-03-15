@@ -547,7 +547,7 @@ class Player
                         hardness = items[world_data.foreground].hardness
 
                     //Check for tile in that location
-                    if (click_count > hardness)
+                    if (click_count >= hardness)
                     {
                         let x_buffer = Buffer.alloc(2)
                         x_buffer.writeInt16LE(click_x)
@@ -569,25 +569,46 @@ class Player
                         let drop_item = layer == 1 ? world_data.background : world_data.foreground
                         let item_count = 1
 
-                        if (drop_item % 2 == 0) //is even
+                        if (drop_item % 2 == 0) //is a tree
                         {
                             drop_item--
                             item_count = Math.floor(Math.random() * (5 - 1) + 1)
                         }
+                        else
+                        {
+                            //chance to drop seeds or the item itself, or even nothing
+                            let drop_type = Math.floor(Math.random() * (3 - 0) + 0)
+                            if (drop_type == 0) //item
+                            {
+                                //TODO: low and high density polyethylene
+                            }
+                            else if (drop_type == 1) //seed
+                            {
+                                drop_item++
+                                item_count = Math.floor(Math.random() * (3 - 1) + 1)
+                            }
+                            else if (drop_type == 2) //nothing. squat.
+                            {
+                                drop_item = 0 //null
+                            }
+                        }
 
-                        let destroyBuffer = Buffer.alloc(1)
-                        destroyBuffer.writeUint8(0)
-                        let indexBuffer = Buffer.alloc(2)
-                        indexBuffer.writeUint16LE(drop_item)
-                        let countBuffer = Buffer.alloc(2)
-                        countBuffer.writeUint16LE(item_count)
-                        let xBuffer = Buffer.alloc(2)
-                        xBuffer.writeUint16LE((click_x*32)+8)
-                        let yBuffer = Buffer.alloc(2)
-                        yBuffer.writeUint16LE((click_y*32)+8)
+                        if (drop_item !== 0)
+                        {
+                            let destroyBuffer = Buffer.alloc(1)
+                            destroyBuffer.writeUint8(0)
+                            let indexBuffer = Buffer.alloc(2)
+                            indexBuffer.writeUint16LE(drop_item)
+                            let countBuffer = Buffer.alloc(2)
+                            countBuffer.writeUint16LE(item_count)
+                            let xBuffer = Buffer.alloc(2)
+                            xBuffer.writeUint16LE((click_x*32)+8)
+                            let yBuffer = Buffer.alloc(2)
+                            yBuffer.writeUint16LE((click_y*32)+8)
 
-                        send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
-                        broadcast_data(this, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                            send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                            broadcast_data(this, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                        }
 
                         //give gem rewards. TODO: proper calculations.
                         this.profile.set_gems(Math.floor(Math.random() * (5 - 0) + 0))
