@@ -28,11 +28,8 @@ enum DataType
     WORLD_THEME = 20,
     PLAYER_MESSAGE,
     ADS, // displaying ads on mobile devices, so pretty much unused.
-    UNUSED_23, // no code for this exists in client
-    UNUSED_24, // no code for this exists in client
-    IAP, //in app purchase, so unused.
-    UNUSED_26, //no code for this exists in client
-    URL_OPEN,
+    IAP=25, //in app purchase, so unused.
+    URL_OPEN=27,
     MUSIC_TILES,
     USER_EVENTS, //things like respawning
     PARTICLES = 30,
