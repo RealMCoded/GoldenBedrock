@@ -700,7 +700,18 @@ class Player
                             send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~3You cannot place equippable items!`))
                         } break;
                         case ITEM_TYPE.INTERACTABLE: {
-                            //manage them here later.
+                            if (item == item_id.white_ball)
+                            {
+                                let px = Buffer.alloc(2), py = Buffer.alloc(2), bx = Buffer.alloc(2), by = Buffer.alloc(2);
+
+                                px.writeUInt16LE(this.x)
+                                py.writeUint16LE(this.y)
+                                bx.writeUInt16LE(raw_click_x)
+                                by.writeUint16LE(raw_click_y)
+
+                                send_data(this.socket, DataType.BALL, px, py, bx, by)
+                                broadcast_data(this, DataType.BALL, px, py, bx, by)
+                            }
                         } break;
                         case ITEM_TYPE.TREE: {
                             let x_buffer = Buffer.alloc(2)
