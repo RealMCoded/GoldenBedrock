@@ -49,6 +49,7 @@ class Player
     world:string = "";
     currentDialog:string = "";
     inventory_slot:number = 0;
+    creation_time:number = Date.now()
     local_identifier:Buffer = Buffer.alloc(4)
     global_identifier:Buffer = Buffer.alloc(4)
 
@@ -112,7 +113,6 @@ class Player
             destroyBuffer.writeUInt8(1);
 
             broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, identifier, destroyBuffer)
-
             broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has logged out.]`))
         }
 
@@ -125,7 +125,7 @@ class Player
             }
         });
         this.socket.destroy()
-        this.log("Destroyed player")
+        this.log("Destroyed.")
     }
 
     async handle(data:Buffer)
@@ -146,6 +146,14 @@ class Player
         buffer_u16, current_minute
         buffer_u16, current_second
         */ 
+
+        if (!this.active && this.world == "" && Date.now() > this.creation_time + 60000 )
+        {
+            this.log("Inactive for 60 seconds, kicked.")
+            send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("You have been disconnected for 60 seconds of inactivity on the login screen."))
+            this.close()
+        }
+
         if (command === CommandType.PING_TEST) return;
 
         this.log(`Got command ${command} (${CommandType[command]}) `)
@@ -637,7 +645,7 @@ class Player
 
                     //player wrench
                     online.forEach(element => {
-                        //ignore elements that are innactive, or not in the world
+                        //ignore elements that are inactive, or not in the world
                         if (element.active == false) return;
                         if (element.world != this.world) return;
 
