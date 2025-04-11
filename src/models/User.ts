@@ -17,7 +17,7 @@ class User extends Model {
   public lastWorld!: string;
   public options!: object;
   public avatar!: object;
-  public inventory!: {slots:number, items:[{index:number, count:number, equipped:number}]};
+  public inventory!: {slots:number, items:[{index:number, count:number}]};
   public friends!: number[];
   public worlds!: number[];
   public achievements!: number[];
@@ -83,11 +83,11 @@ User.init(
     },
     avatar: {
       type: DataTypes.JSON,
-      defaultValue: {Is_Female: false, Skin: [240, 192, 127]}
+      defaultValue: {Is_Female: false, Skin: [240, 192, 127], equipped: []}
     },
     inventory: {
       type: DataTypes.JSON,
-      defaultValue: {slots: 30, items: [{index: 1, count: 1, equipped: 0}, {index: 3, count: 1, equipped: 0}]}
+      defaultValue: {slots: 30, items: [{index: 1, count: 1}, {index: 3, count: 1}]}
     },
     friends: {
       type: DataTypes.TEXT,

@@ -4,7 +4,7 @@ import { Player } from "./player";
 import { string_buffer, validate_string } from "./utils";
 import { online, motd } from "./main";
 import { Dialog } from "./dialog";
-import { items } from "./item-id";
+import { item_id, items } from "./item-id";
 
 type CommandCallback = (player:Player, args: string[]) => any;
 
@@ -160,6 +160,19 @@ commands.register_command("find", (player, args) => {
     itemList.Button(true, "close", "Close")
 
     update_dialog(player, itemList)
+})
+
+commands.register_command("equip", (player, args) => {
+    if (args.length != 1)
+        return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /equip <id>. ~0Temp equip item"))
+
+    player.profile.equip_item(+args[0])
+
+    let profileData = player.profile.player_data_buffer()
+    send_data(player.socket, DataType.PLAYER_PROFILE_DATA, player.local_identifier, profileData)
+    broadcast_data(player, DataType.PLAYER_PROFILE_DATA, player.global_identifier, profileData)
+
+    send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
 })
 
 commands.register_command("usredit", (player, args) => {

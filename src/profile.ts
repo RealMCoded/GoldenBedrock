@@ -3,8 +3,9 @@
 import * as net from "net";
 import User from "./models/User";
 import { get_flag } from "./utils";
-import { item_id } from "./item-id";
+import { item_id, items } from "./item-id";
 import { DataType, send_data } from "./data";
+import { BODY_LAYER, item_data } from "./item-types";
 
 class PlayerProfile
 {
@@ -69,7 +70,7 @@ class PlayerProfile
 
         if (!found)
         {
-            this.data.inventory.items.push({index: item, count: count, equipped: 0})
+            this.data.inventory.items.push({index: item, count: count})
         }
 
         let account = await User.findOne({where: {username:this.data.username}})
@@ -90,7 +91,8 @@ class PlayerProfile
             offset += 2;
             buffer.writeUInt16LE(this.data.inventory.items[i].count, offset);
             offset += 2;
-            buffer.writeUInt16LE(this.data.inventory.items[i].equipped, offset);
+            //buffer.writeUInt16LE(this.data.inventory.items[i].equipped, offset);
+            buffer.writeUInt16LE(0, offset);
             offset += 2;
         }
 
@@ -105,6 +107,26 @@ class PlayerProfile
         }
 
         return buffer;
+    }
+
+    async equip_item(item:item_id)
+    {
+        let item_data:item_data = items[item]
+
+        if (item_data.body_layer == BODY_LAYER.none)
+            return console.error("[Equip] Tried to equip a non equippable item.")
+
+        this.data.avatar.equipped.forEach((element, index) => {
+            let tempData:item_data = items[element]
+
+            if(item_data.body_layer == tempData.body_layer)
+                this.data.avatar.equipped.splice(index, 1)
+        });
+
+        this.data.avatar.equipped.push(item);
+
+        let account = await User.findOne({where: {username:this.data.username}})
+        await account.update({avatar: this.data.avatar})
     }
 
     player_data_buffer()
@@ -142,14 +164,23 @@ class PlayerProfile
         });
 
         //this is my old outfit, for testing reasons.
-        equipped_items[0].writeUInt16LE(item_id.messy_brown_hair)
-        equipped_items[1].writeUInt16LE(item_id.golden_egg_head)
-        equipped_items[2].writeUInt16LE(item_id.nightmare_scythe)
-        equipped_items[4].writeUInt16LE(item_id.black_pants)
-        equipped_items[5].writeUInt16LE(item_id.black_shoes)
-        equipped_items[6].writeUInt16LE(item_id.diamond_cape)
-        equipped_items[7].writeUInt16LE(item_id.dark_sweater)
-        equipped_items[11].writeUInt16LE(item_id.black_wool_scarf)
+        /*
+        this.equip_item(item_id.messy_brown_hair)
+        this.equip_item(item_id.golden_egg_head)
+        this.equip_item(item_id.nightmare_scythe)
+        this.equip_item(item_id.black_pants)
+        this.equip_item(item_id.black_shoes)
+        this.equip_item(item_id.diamond_cape)
+        this.equip_item(item_id.dark_sweater)
+        this.equip_item(item_id.black_wool_scarf)
+        */
+
+        //assemble items
+        this.data.avatar.equipped.forEach((element, index) => {
+            let item_data:item_data = items[element]
+
+            equipped_items[item_data.body_layer-1].writeUInt16LE(element)
+        });
 
         let itemEffect = Buffer.alloc(2)
         itemEffect.writeUInt16LE(0)
