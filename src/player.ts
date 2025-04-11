@@ -48,6 +48,7 @@ class Player
     y:number = 0;
     world:string = "";
     currentDialog:string = "";
+    dialog_item:number = 0;
     inventory_slot:number = 0;
     creation_time:number = Date.now()
     local_identifier:Buffer = Buffer.alloc(4)
@@ -372,6 +373,10 @@ class Player
                 }
                 else
                 {
+                    if (this.currentDialog !== "")
+                        return;
+
+                    this.dialog_item = this.profile.data.inventory.items[slot].index
                     //Double Click
                     let item_dialog:Dialog = new Dialog("menu.item")
 
@@ -391,6 +396,7 @@ class Player
 
             case CommandType.DIALOG_ACTION:
             {
+                this.currentDialog = ""
                 //TODO: Fix checkboxes sending incorrect data.
                 const worker = reader.readUint16()
                 let header_length = reader.readUint8();
@@ -477,6 +483,48 @@ class Player
                     case "menu.moderation":
                     {
 
+                    } break;
+
+                    case "menu.item":
+                    {
+                        if (sub_action == "item.trash")
+                        {
+                            update_dialog(this, new Dialog("menu.item.trash")
+                            .ItemText(true, "Trashing item", 72, this.dialog_item)
+                            .Text(true, "How many do you want to trash?", 48)
+                            .TextBox(true, "item.trash.count", "1", 5)
+                            .CheckBox(true, false, "item.trash.confirm", "Confirm trashing", 32)
+                            .Button(false, "item.trash.confirm", "Trash")
+                            .Button(false, "item.trash.cancel", "Cancel")
+                            )
+                        }
+                    } break;
+
+                    case "menu.item.trash":
+                    {
+                        if (sub_action == "item.trash.confirm")
+                        {
+                            if (dict_int[0].value == 1)
+                            {
+                                //it's confirmed. nuke it.
+                                let count:number = +dict_str[0].value
+
+                                if (Number.isNaN(count) || count <= 0 || count > 999) //replace 999 with actual count
+                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3You are trashing too little or too much of this item."))
+                                else
+                                {
+                                    await this.profile.edit_inventory(this.dialog_item, -count)
+                                    let invData:Buffer = this.profile.get_inventory_buffer()
+                                    send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
+
+                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~1Trashed ${count}x items.`))
+                                }
+                            }
+                            else
+                            {
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3You must confirm this action."))
+                            }
+                        }
                     } break;
 
                     case "menu.warp":
