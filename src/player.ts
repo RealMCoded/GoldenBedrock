@@ -1058,7 +1058,7 @@ class Player
                     //above player
                     let render_msg = string_buffer(mymessage)
                     let visibleTime = Buffer.alloc(2)
-                    visibleTime.writeUInt16LE(25)
+                    visibleTime.writeUInt16LE(mymessage.length * 2)
 
                     send_data(this.socket, DataType.PLAYER_MESSAGE, this.local_identifier, render_msg, visibleTime)
                     broadcast_data(this, DataType.PLAYER_MESSAGE, this.global_identifier, render_msg, visibleTime)
