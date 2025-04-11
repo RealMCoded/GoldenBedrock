@@ -174,13 +174,14 @@ class Player
 
                 if(ver !== '3.8.3')
                 {
-                    console.log(`Unsupported version - ${ver}`)
+                    this.log(`Unsupported version - ${ver}`)
                         update_dialog(this, new Dialog()
                         .ItemText(true, "~1Unsupported Client", 72, 0)
                         .Text(true, "Your game version is not supported.", 48)
                         .Text(true, "Please use client version ~13.8.3~0.", 48)
                         .Text(true, "", 48)
                         )
+                    this.close()
                     return;
                 }
 
@@ -497,6 +498,15 @@ class Player
                             .Button(false, "item.trash.confirm", "Trash")
                             .Button(false, "item.trash.cancel", "Cancel")
                             )
+                        } else if (sub_action == "item.drop")
+                        {
+                            update_dialog(this, new Dialog("menu.item.drop")
+                            .ItemText(true, "Drop item", 72, this.dialog_item)
+                            .Text(true, "How many do you want to drop?", 48)
+                            .TextBox(true, "item.drop.count", "1", 5)
+                            .Button(false, "item.drop.confirm", "Drop")
+                            .Button(false, "item.drop.cancel", "Cancel")
+                            )
                         }
                     } break;
 
@@ -526,6 +536,41 @@ class Player
                             }
                         }
                     } break;
+
+                    case "menu.item.drop":
+                    {
+                        if (sub_action == "item.drop.confirm")
+                            {
+                                //it's confirmed. nuke it.
+                                let count:number = +dict_str[0].value
+    
+                                if (Number.isNaN(count) || count <= 0 || count > 999) //replace 999 with actual count
+                                        return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3You are dropping too little or too much of this item."))
+                                else
+                                {
+                                    //spawn drop
+                                    let destroyBuffer = Buffer.alloc(1)
+                                    destroyBuffer.writeUint8(0)
+                                    let indexBuffer = Buffer.alloc(2)
+                                    indexBuffer.writeUint16LE(this.dialog_item)
+                                    let countBuffer = Buffer.alloc(2)
+                                    countBuffer.writeUint16LE(count)
+                                    let xBuffer = Buffer.alloc(2)
+                                    xBuffer.writeUint16LE((this.x) + 32) //TODO: directions
+                                    let yBuffer = Buffer.alloc(2)
+                                    yBuffer.writeUint16LE(this.y + 8)
+
+                                    send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                                    broadcast_data(this, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+
+                                    await this.profile.edit_inventory(this.dialog_item, -count)
+                                    let invData:Buffer = this.profile.get_inventory_buffer()
+                                    send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
+
+                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~Dropped ${count}x items.`))
+                                }
+                            }
+                    }
 
                     case "menu.warp":
                     {
@@ -982,6 +1027,7 @@ class Player
 
             case CommandType.ACTION_BUBBLES:
             {
+                //FIXME: Sometimes, bubbles dont disappear
                 const action = reader.readInt16()
                 let actionBuffer = Buffer.alloc(2)
                 actionBuffer.writeUInt16LE(action)
