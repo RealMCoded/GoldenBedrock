@@ -189,7 +189,7 @@ function tiles_at_location(world:string, x:number, y:number)
     return return_data;
 }
 
-function modify_tile(world:string, x:number, y:number, layer:number, tile:number)
+function modify_tile(world:string, x:number, y:number, layer:number, tile:number, tile_data:any[] = [])
 {
     let data = get_world_data(world)
     let tile_exists:boolean = false;
@@ -201,6 +201,7 @@ function modify_tile(world:string, x:number, y:number, layer:number, tile:number
             {
                 tile_exists = true;
                 element.id = tile;
+                element.data = tile_data
             }
         });
     }
@@ -211,6 +212,7 @@ function modify_tile(world:string, x:number, y:number, layer:number, tile:number
             {
                 tile_exists = true;
                 element.id = tile;
+                element.data = tile_data
             }
         });
     }
@@ -218,9 +220,9 @@ function modify_tile(world:string, x:number, y:number, layer:number, tile:number
     if (!tile_exists)
     {
         if (layer == 1)
-            data.tiles.background.push({x:x, y:y, id:tile, data:[]})
+            data.tiles.background.push({x:x, y:y, id:tile, data:tile_data})
         else if (layer == 2)
-            data.tiles.foreground.push({x:x, y:y, id:tile, data:[]})
+            data.tiles.foreground.push({x:x, y:y, id:tile, data:tile_data})
     }
 
     save_world(world, data)

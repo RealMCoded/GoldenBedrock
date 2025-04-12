@@ -49,6 +49,7 @@ class Player
     world:string = "";
     currentDialog:string = "";
     dialog_item:number = 0;
+    dialog_tile:number[] = [0, 0, 0]; //x, y, id
     inventory_slot:number = 0;
     creation_time:number = Date.now()
     local_identifier:Buffer = Buffer.alloc(4)
@@ -486,6 +487,14 @@ class Player
 
                     } break;
 
+                    case "menu.sign.edit":
+                    {
+                        if (sub_action == "menu.sign.confirm")
+                        {
+                            modify_tile(this.world, this.dialog_tile[0], this.dialog_tile[1], 2, this.dialog_tile[2], [dict_str[0].value])
+                        }
+                    } break;
+
                     case "menu.item":
                     {
                         if (sub_action == "item.trash")
@@ -570,7 +579,7 @@ class Player
                                     return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~Dropped ${count}x items.`))
                                 }
                             }
-                    }
+                    } break;
 
                     case "menu.warp":
                     {
@@ -764,6 +773,21 @@ class Player
                     });
 
                     //tile wrench
+                    const world_data = tiles_at_location(this.world, click_x, click_y)
+                    if (world_data.foreground == 0) return;
+
+                    this.dialog_tile = [click_x, click_y, world_data.foreground]
+
+                    if (world_data.foreground == item_id.wooden_sign)
+                    {
+                        update_dialog(this, new Dialog("menu.sign.edit")
+                        .ItemText(true, "Edit sign", 72, 0)
+                        .TextBox(true, "menu.sign.content", "", 16)
+                        .Text(true, "Text must follow the code of conduct!", 25)
+                        .Button(false, "menu.sign.confirm", "Save")
+                        .Button(true, "menu.sign.exit", "Close")
+                        )
+                    }
                 }
                 else // everything else
                 {
