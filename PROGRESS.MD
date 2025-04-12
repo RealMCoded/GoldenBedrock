@@ -10,7 +10,7 @@ Listing is not 100% complete.
 
 - [ ] Account Recovery
 
-- [ ] Avatar editing (Equipping)
+- [x] Avatar editing (Equipping) (dev note -- works but not via inventory yet)
 
 - [ ] Custom login tokens
 
@@ -46,7 +46,7 @@ Listing is not 100% complete.
 
 - [X] Picking up drops
 
-- [ ] Dropping items
+- [x] Dropping items
 
 - [X] Placing tiles removes from inventory
 
@@ -79,6 +79,8 @@ Listing is not 100% complete.
 - [ ] Tile Ownership (Small, Medium, Large locks)
 
 - [x] World Warping (/warp, via ESC menu)
+
+- [ ] Tree grow times
 
 - [ ] Drop saving
 
