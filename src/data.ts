@@ -43,6 +43,12 @@ enum DataType
     CURRENCY_ROCKS //aka "newcurrency"
 }
 
+/**
+ * Send buffer data to a socket
+ * @param socket Socket to send data to
+ * @param data_id The ID of the data to send (DataType)
+ * @param buffer_data Data to include
+ */
 function send_data(socket:net.Socket, data_id:DataType, ...buffer_data:Buffer[])
 {
     try
@@ -61,6 +67,12 @@ function send_data(socket:net.Socket, data_id:DataType, ...buffer_data:Buffer[])
     }
 }
 
+/**
+ * Globally sends data to all clients who are in the same room as the player.
+ * @param player The player who is sending the data.
+ * @param data_id The ID of the data to send (DataType)
+ * @param buffer_data Data to include
+ */
 function broadcast_data(player:Player, data_id:DataType, ...buffer_data:Buffer[])
 {
     online.forEach(element => {
@@ -71,7 +83,11 @@ function broadcast_data(player:Player, data_id:DataType, ...buffer_data:Buffer[]
     })
 }
 
-
+/**
+ * Change the dialog shown to the player.
+ * @param player The player to update
+ * @param dialog Dialog data
+ */
 function update_dialog(player:Player, dialog:Dialog)
 {
     let header = Buffer.alloc(4);
