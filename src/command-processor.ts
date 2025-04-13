@@ -191,6 +191,15 @@ commands.register_command("usrref", (player, args) => {
     send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
 })
 
+commands.register_command("noclip", (player, args) => {
+    player.profile.noclip = !player.profile.noclip
+    let profileData = player.profile.player_data_buffer()
+    send_data(player.socket, DataType.PLAYER_PROFILE_DATA, player.local_identifier, profileData)
+    broadcast_data(player, DataType.PLAYER_PROFILE_DATA, player.global_identifier, profileData)
+
+    send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
+})
+
 commands.register_command("nerdstats", (player, args) => {
     //store node memory usage
     const mem = `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100) / 100} MB`;
