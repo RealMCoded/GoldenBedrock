@@ -43,6 +43,14 @@ enum DataType
     CURRENCY_ROCKS //aka "newcurrency"
 }
 
+enum UserEvents
+{
+    HAND_ANGLE,
+    LAVA_PARTICLE,
+    RESPAWN,
+    ACID_PARTICLE
+}
+
 /**
  * Send buffer data to a socket
  * @param socket Socket to send data to
@@ -102,4 +110,4 @@ function update_dialog(player:Player, dialog:Dialog)
     player.socket.write(finalBuffer); //pack it, ship it
 }
 
-export {DataType, send_data, broadcast_data, update_dialog}
+export {DataType, UserEvents, send_data, broadcast_data, update_dialog}

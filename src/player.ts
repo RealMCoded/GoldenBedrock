@@ -1,6 +1,6 @@
 import * as net from "net";
 import { BinaryReader } from "@picode/binary-reader";
-import { DataType, send_data, update_dialog, broadcast_data } from "./data";
+import { DataType, send_data, update_dialog, broadcast_data, UserEvents } from "./data";
 import { PlayerProfile } from "./profile";
 import { Dialog } from "./dialog";
 import { online, motd } from "./main";
@@ -463,7 +463,11 @@ class Player
                         }
                         else if (sub_action == "respawn")
                         {
-
+                            let event_buff = Buffer.alloc(2)
+                            event_buff.writeUint16LE(UserEvents.RESPAWN)
+                            send_data(this.socket, DataType.USER_EVENTS, this.local_identifier, event_buff)
+                            broadcast_data(this, DataType.USER_EVENTS, this.global_identifier, event_buff)
+                        }
                         }
                         else if (sub_action == "mod")
                         {
@@ -630,6 +634,13 @@ class Player
 
             case CommandType.WORLD_CLICK:
             {
+                //Player hand movement for clicking
+                let event_buff = Buffer.alloc(2)
+                event_buff.writeUint16LE(UserEvents.HAND_ANGLE)
+                send_data(this.socket, DataType.USER_EVENTS, this.local_identifier, event_buff)
+                broadcast_data(this, DataType.USER_EVENTS, this.global_identifier, event_buff)
+
+                //ok back to reading data haha
                 let raw_click_x = reader.readUint16()
                 let raw_click_y = reader.readUint16() 
                 let click_x = Math.floor(raw_click_x / 32);
