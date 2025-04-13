@@ -827,7 +827,7 @@ class Player
                     {
                         let sign_data = get_tile_data(this.world, click_x, click_y)
                         update_dialog(this, new Dialog("menu.sign.edit")
-                        .ItemText(true, "Edit sign", 72, 0)
+                        .ItemText(true, "Edit sign", 72, 69)
                         .TextBox(true, "menu.sign.content", sign_data[0], 32)
                         .Text(true, "Text must follow the code of conduct!", 25)
                         .Button(false, "menu.sign.confirm", "Save")
