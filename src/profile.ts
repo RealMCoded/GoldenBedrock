@@ -91,8 +91,8 @@ class PlayerProfile
             offset += 2;
             buffer.writeUInt16LE(this.data.inventory.items[i].count, offset);
             offset += 2;
-            //buffer.writeUInt16LE(this.data.inventory.items[i].equipped, offset);
-            buffer.writeUInt16LE(0, offset);
+            let equip:boolean = this.data.avatar.equipped.includes(this.data.inventory.items[i].index);
+            buffer.writeUInt16LE(equip, offset);
             offset += 2;
         }
 
