@@ -234,9 +234,22 @@ function get_world_data(name:string)
     return JSON.parse(data)
 }
 
+function get_tile_data(world:string, x:number, y:number) //dont use layer since bg tiles cant have data
+{
+    const data = get_world_data(world)
+    let tiledata:any[] = [];
+
+    data.tiles.foreground.forEach((element:Tile) => {
+        if (element.x == x && element.y == y)
+            tiledata = element.data
+    });
+
+    return tiledata
+}
+
 async function world_exists(name: string): Promise<boolean> {
     let data = await World.findOne({ where: { name: name } });
     return data !== null;
 }
 
-export {go_world, world_exists, create_world, get_world_data, convert_to_game_format, Theme, find_spawn, tiles_at_location, random_world, modify_tile}
+export {go_world, world_exists, create_world, get_world_data, convert_to_game_format, Theme, find_spawn, tiles_at_location, random_world, modify_tile, get_tile_data}

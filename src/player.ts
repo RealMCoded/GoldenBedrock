@@ -6,7 +6,7 @@ import { Dialog } from "./dialog";
 import { online, motd } from "./main";
 import User from "./models/User";
 import { account_online, generate_token, point_in_rectangle, string_buffer, validate_string } from "./utils";
-import { convert_to_game_format, create_world, find_spawn, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
+import { convert_to_game_format, create_world, find_spawn, get_tile_data, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
 import { item_from_id, ITEM_TYPE } from "./item-types";
 import { item_id, items } from "./item-id";
 import { commands } from "./command-processor";
@@ -825,9 +825,10 @@ class Player
 
                     if (world_data.foreground == item_id.wooden_sign)
                     {
+                        let sign_data = get_tile_data(this.world, click_x, click_y)
                         update_dialog(this, new Dialog("menu.sign.edit")
                         .ItemText(true, "Edit sign", 72, 0)
-                        .TextBox(true, "menu.sign.content", "", 16)
+                        .TextBox(true, "menu.sign.content", sign_data[0], 16)
                         .Text(true, "Text must follow the code of conduct!", 25)
                         .Button(false, "menu.sign.confirm", "Save")
                         .Button(true, "menu.sign.exit", "Close")
@@ -1059,8 +1060,17 @@ class Player
 
                 //Interactable tiles
                 const world_data = tiles_at_location(this.world, Math.round(this.x/32), Math.round(this.y/32))
+                let tile_text:string = ""
 
-                if (world_data.foreground !== 0)
+                switch(world_data.foreground)
+                {
+                    case item_id.wooden_sign:
+                    {
+                        tile_text = get_tile_data(this.world, Math.round(this.x/32), Math.round(this.y/32))[0]
+                    } break;
+                }
+
+                if (tile_text !== "")
                 {
                     //tooltip notification
                     let notification_time = Buffer.alloc(2)
@@ -1069,7 +1079,7 @@ class Player
                     let notification_icon = Buffer.alloc(2)
                     notification_icon.writeUint16LE(world_data.foreground)
     
-                    let text = string_buffer("Tile")
+                    let text = string_buffer(tile_text)
                     send_data(this.socket, 17, notification_time, notification_icon, text)
                 }
             } break;
