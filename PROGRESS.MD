@@ -10,7 +10,7 @@ Listing is not 100% complete.
 
 - [ ] Account Recovery
 
-- [x] Avatar editing (Equipping) (dev note -- works but not via inventory yet)
+- [x] Avatar editing (Equipping)
 
 - [ ] Custom login tokens
 
@@ -48,9 +48,11 @@ Listing is not 100% complete.
 
 - [x] Dropping items
 
+- [x] Trashing items
+
 - [X] Placing tiles removes from inventory
 
-- [ ] Item double click interactions
+- [x] Item double click interactions
 
 - [ ] Player2Player trading
 
