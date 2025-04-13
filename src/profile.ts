@@ -129,6 +129,19 @@ class PlayerProfile
         await account.update({avatar: this.data.avatar})
     }
 
+    async unequip_item(item:item_id)
+    {
+        if (!this.data.avatar.equipped.includes(item)) return;
+
+        this.data.avatar.equipped.forEach((element, index) => {
+            if (element == item)
+                this.data.avatar.equipped.splice(index, 1)
+        });
+
+        let account = await User.findOne({where: {username:this.data.username}})
+        await account.update({avatar: this.data.avatar})
+    }
+
     player_data_buffer()
     {
         let flag = get_flag(this.country)

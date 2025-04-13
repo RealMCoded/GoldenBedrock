@@ -1,4 +1,3 @@
-//return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~3Argument Error: ~5expected ${expectedArgs} argument(s), got ${args.length}.`))
 import { DataType, send_data, update_dialog, broadcast_data } from "./data";
 import { Player } from "./player";
 import { string_buffer, validate_string } from "./utils";

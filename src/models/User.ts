@@ -16,7 +16,7 @@ class User extends Model {
   public level!: number;
   public lastWorld!: string;
   public options!: object;
-  public avatar!: object;
+  public avatar!: {Is_Female:boolean, Skin:number[], equipped:number[]};
   public inventory!: {slots:number, items:[{index:number, count:number}]};
   public friends!: number[];
   public worlds!: number[];

@@ -319,7 +319,7 @@ class Player
                     .Text(true, "Congrats, You are now a GoldenBedrock member!", 50)
                     .Text(true, `Your account token is ~1${token}~0.`, 50)
                     .Text(true, "Make sure to keep your token in a safe place.", 50)
-                    .Button(true, "xit", "Yay!")
+                    .Button(true, "close", "Yay!")
                     )
                 }
             } break;
@@ -328,20 +328,6 @@ class Player
             {
                 //TODO: actual recovery. for now just say its not working
                 send_data(this.socket, DataType.RECOVERY, string_buffer("~3Recovery failed! ~0Recovery does not work at the moment."))
-            } break;
-
-            case CommandType.ESC_MENU:
-            {
-                update_dialog(this, new Dialog("menu.main")
-                .ItemText(true, `Menu - ~1${this.world}`, 72, 3)
-                .Button(true, "warp", "Warp")
-                .Button(true, "respawn", "Respawn")
-                .Button(true, "shop", "Shop")
-                .Button(true, "settings", "Settings")
-                .Button(true, "mod", "Moderation")
-                .Button(true, "bug", "Report a Bug")
-                .Button(true, "close", "Close")
-                )
             } break;
 
             case CommandType.FRIENDS_MENU:
@@ -387,7 +373,13 @@ class Player
                     item_dialog.Text(true, `Rarity: ${item_data.rarity}`, 48)
                     item_dialog.Text(true, `Farmability: ${item_data.farmability}`, 48)
 
-                    if (item_data.type == ITEM_TYPE.EQUIPPABLE) item_dialog.Button(true, "item.equip", "Equip")
+                    if (item_data.type == ITEM_TYPE.EQUIPPABLE) 
+                    {
+                        if (this.profile.data.avatar.equipped.includes(this.dialog_item))
+                            item_dialog.Button(true, "item.unequip", "Unequip")
+                        else
+                            item_dialog.Button(true, "item.equip", "Equip")
+                    }
                     if (item_data.can_drop) item_dialog.Button(true, "item.drop", "Drop")
                     if (item_data.can_trash) item_dialog.Button(true, "item.trash", "Trash")
 
@@ -396,10 +388,23 @@ class Player
                 }
             } break;
 
+            case CommandType.ESC_MENU:
+            {
+                update_dialog(this, new Dialog("menu.main")
+                .ItemText(true, `Menu - ~1${this.world}`, 72, 3)
+                .Button(true, "warp", "Warp")
+                .Button(true, "respawn", "Respawn")
+                .Button(true, "shop", "Shop")
+                .Button(true, "settings", "Settings")
+                .Button(true, "mod", "Moderation")
+                .Button(true, "bug", "Report a Bug")
+                .Button(true, "close", "Close")
+                )
+            } break;
+
             case CommandType.DIALOG_ACTION:
             {
                 this.currentDialog = ""
-                //TODO: Fix checkboxes sending incorrect data.
                 const worker = reader.readUint16()
                 let header_length = reader.readUint8();
                 let dialog_name = reader.readArrayAsString(header_length)
@@ -468,6 +473,16 @@ class Player
                             send_data(this.socket, DataType.USER_EVENTS, this.local_identifier, event_buff)
                             broadcast_data(this, DataType.USER_EVENTS, this.global_identifier, event_buff)
                         }
+                        else if (sub_action == "settings")
+                        {
+                            update_dialog(this, new Dialog("menu.settings")
+                            .ItemText(true, `~1Settings`, 72, 0)
+                            .Button(true, "settings.general", "General")
+                            .Button(true, "settings.account", "Account")
+                            .Button(true, "settings.avatar", "Avatar")
+                            .Button(true, "settings.privacy", "Privacy")
+                            .Button(true, "close", "Close")
+                            )
                         }
                         else if (sub_action == "mod")
                         {
@@ -511,7 +526,8 @@ class Player
                             .Button(false, "item.trash.confirm", "Trash")
                             .Button(false, "item.trash.cancel", "Cancel")
                             )
-                        } else if (sub_action == "item.drop")
+                        } 
+                        else if (sub_action == "item.drop")
                         {
                             update_dialog(this, new Dialog("menu.item.drop")
                             .ItemText(true, "Drop item", 72, this.dialog_item)
@@ -520,6 +536,24 @@ class Player
                             .Button(false, "item.drop.confirm", "Drop")
                             .Button(false, "item.drop.cancel", "Cancel")
                             )
+                        } 
+                        else if (sub_action == "item.equip")
+                        {
+                            this.profile.equip_item(this.dialog_item)
+                            let profileData = this.profile.player_data_buffer()
+                            send_data(this.socket, DataType.PLAYER_PROFILE_DATA, this.local_identifier, profileData)
+                            broadcast_data(this, DataType.PLAYER_PROFILE_DATA, this.global_identifier, profileData)
+                            let invData:Buffer = this.profile.get_inventory_buffer()
+                            send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
+                        }
+                        else if (sub_action == "item.unequip")
+                        {
+                            this.profile.unequip_item(this.dialog_item)
+                            let profileData = this.profile.player_data_buffer()
+                            send_data(this.socket, DataType.PLAYER_PROFILE_DATA, this.local_identifier, profileData)
+                            broadcast_data(this, DataType.PLAYER_PROFILE_DATA, this.global_identifier, profileData)
+                            let invData:Buffer = this.profile.get_inventory_buffer()
+                            send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
                         }
                     } break;
 
