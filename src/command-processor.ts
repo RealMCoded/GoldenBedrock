@@ -208,7 +208,13 @@ commands.register_command("nerdstats", "nerdstats. stats for nerds.", (player, a
     //store node memory usage
     const mem = `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100) / 100} MB`;
     //store node uptime
-    const uptime = `${(Math.round(process.uptime() * 100) / 100)/60} minutes`;
+    const serveruptime = process.uptime();
+    
+    const hrs = Math.floor(serveruptime / 3600);
+    const mins = Math.floor((serveruptime % 3600) / 60);
+    const secs = Math.floor(serveruptime % 60);
+
+    const uptime = `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
     //store node version
     const version = process.version;
     //store node platform
