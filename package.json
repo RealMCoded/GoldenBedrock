@@ -9,7 +9,7 @@
   },
   "author": "stuartt",
   "license": "AGPL-3.0-or-later",
-  "description": "Experimental Breaworlds Server",
+  "description": "Experimental server for 2020 Breaworlds clients",
   "devDependencies": {
     "@types/node": "^22.13.1",
     "@types/sequelize": "^4.28.20",
