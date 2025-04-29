@@ -12,6 +12,7 @@
   "description": "Experimental server for 2020 Breaworlds clients",
   "devDependencies": {
     "@types/node": "^22.13.1",
+    "@types/nodemailer": "^6.4.17",
     "@types/sequelize": "^4.28.20",
     "@types/sqlite3": "^3.1.11"
   },
@@ -20,6 +21,7 @@
     "bad-words": "^4.0.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
+    "nodemailer": "^6.10.1",
     "sequelize": "^6.37.5",
     "sqlite3": "^5.1.7"
   }

@@ -10,6 +10,7 @@ import { convert_to_game_format, create_world, find_spawn, get_tile_data, get_wo
 import { item_from_id, ITEM_TYPE } from "./item-types";
 import { item_id, items } from "./item-id";
 import { commands } from "./command-processor";
+import { send_recovery_email } from "./mailer";
 
 enum CommandType
 {
@@ -200,6 +201,7 @@ class Player
                 const passw_size = reader.readUint8();
                 const passw = reader.readArrayAsString(passw_size);
                 const accnum = reader.readUint16();
+                const accounts = reader.readUint16();
 
                 let account = await User.findOne({where: {username:uname}})
 
@@ -266,6 +268,7 @@ class Player
                 const email_size = reader.readUint8();
                 const email = reader.readArrayAsString(email_size);
                 const accnum = reader.readUint16();
+                const accounts = reader.readUint16();
                 const token = generate_token();
 
                 let account = await User.findOne({where: {username:uname}})
@@ -326,8 +329,36 @@ class Player
 
             case CommandType.RECOVER:
             {
+                let success:boolean;
+                let message:Buffer;
+
+                const uname_size = reader.readUint8();
+                const uname = reader.readArrayAsString(uname_size);
+                const email_size = reader.readUint8();
+                const email = reader.readArrayAsString(email_size);
+                const accounts = reader.readUint16();
+
+                let account = await User.findOne({where: {username:uname, email:email}})
+
+                if (account == null)
+                {
+                    success = false
+                    message = string_buffer("~3Recovery failed! ~0There is no account with that username and email on this server.")
+                }
+                else if (uname.length < 1 || email.length < 1)
+                {
+                    success = false
+                    message = string_buffer(`~3Recovery failed! ~0You must provide a username and email.`)
+                }
+                else
+                {
+                    success = true
+                    message = string_buffer(`~1An email has been sent with your account token. Check your spam folder.`)
+                    send_recovery_email(account.username, account.token, account.email)
+                }
+                
                 //TODO: actual recovery. for now just say its not working
-                send_data(this.socket, DataType.RECOVERY, string_buffer("~3Recovery failed! ~0Recovery does not work at the moment."))
+                send_data(this.socket, DataType.RECOVERY, message)
             } break;
 
             case CommandType.FRIENDS_MENU:
