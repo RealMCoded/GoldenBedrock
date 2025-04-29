@@ -8,7 +8,7 @@ Listing is not 100% complete.
 
 - [x] Account Login
 
-- [ ] Account Recovery
+- [x] Account Recovery
 
 - [x] Avatar editing (Equipping)
 
