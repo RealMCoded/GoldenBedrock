@@ -13,15 +13,19 @@ interface Command
     //expectedArgs?: number | null; 
 }
 
+function pad(num:number) {
+    return String(num).padStart(2, '0');
+}
+
 class SlashCommands
 {
     private commands: Record<string, Command> = {};
     public command_list:string[] = []
 
-    register_command(command: string, callback: CommandCallback)
+    register_command(command: string, help:string, callback: CommandCallback)
     {
         this.commands[command] = { callback };
-        this.command_list.push("/" + command)
+        this.command_list.push("~1/" + command + "~0 - " + help)
     }
 
     process_command(player:Player, input:string)
@@ -49,7 +53,7 @@ class SlashCommands
 
 let commands:SlashCommands = new SlashCommands()
 
-commands.register_command("help", (player, args) => {
+commands.register_command("help", "Displays list of commands", (player, args) => {
     let commandsDialog:Dialog = new Dialog("menu.help");
 
     commandsDialog.ItemText(true, `List of commands`, 72, 0)
@@ -63,14 +67,14 @@ commands.register_command("help", (player, args) => {
     update_dialog(player, commandsDialog)
 })
 
-commands.register_command("motd", (player, args) => {
+commands.register_command("motd", "Shows Message of the Day", (player, args) => {
     if (motd.render)
         update_dialog(player, motd.messageOfTheDay)
     else
         send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3MOTD has been disabled on this server."))
 })
 
-commands.register_command("e", (player, args) => {
+commands.register_command("e", "Emote. /e dance, /e wave", (player, args) => {
     if (args.length != 1)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /e <emote>. ~0Valid emotes: wave, dance"))
 
@@ -105,7 +109,7 @@ commands.register_command("e", (player, args) => {
     send_data(player.socket, DataType.EMOTES, player.local_identifier, dance_id_buffer, dance_frame_buffer, dance_time_buffer)
 })
 
-commands.register_command("g", (player, args) => {
+commands.register_command("g", "Send a global message for 200 gems.", (player, args) => {
     if (args.length == 0)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /g <message>. ~0This will cost you ~1200 ~0gems."))
 
@@ -118,7 +122,7 @@ commands.register_command("g", (player, args) => {
     send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~4Global message sent!"))
 })
 
-commands.register_command("warp", (player, args) => {
+commands.register_command("warp", "Warp to a different world.", (player, args) => {
     if (args.length != 1)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /warp <world>. ~0Warp to another world."))
 
@@ -133,7 +137,7 @@ commands.register_command("warp", (player, args) => {
 })
 
 //STAFF COMMANDS
-commands.register_command("item", (player, args) => {
+commands.register_command("item", "Give an item from it's ID.", (player, args) => {
     if (args.length != 2)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /item <id> <amount>. ~0Gives an item from it's ID."))
 
@@ -144,7 +148,7 @@ commands.register_command("item", (player, args) => {
     send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Gave ${args[1]}x "${items[+args[0]].name}"`))
 })
 
-commands.register_command("find", (player, args) => {
+commands.register_command("find", "List items containing a string.", (player, args) => {
     if (args.length != 1)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /find <name>. ~0Lists items containing a string"))
 
@@ -161,7 +165,7 @@ commands.register_command("find", (player, args) => {
     update_dialog(player, itemList)
 })
 
-commands.register_command("equip", (player, args) => {
+commands.register_command("equip", "Equip an item from it's Id.", (player, args) => {
     if (args.length != 1)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /equip <id>. ~0Temp equip item"))
 
@@ -174,7 +178,7 @@ commands.register_command("equip", (player, args) => {
     send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
 })
 
-commands.register_command("usredit", (player, args) => {
+commands.register_command("usredit", "Edit your data for this session.", (player, args) => {
     if (args.length != 2)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /usredit <key> <value>. ~0Temp edit local player data"))
 
@@ -183,7 +187,7 @@ commands.register_command("usredit", (player, args) => {
     send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Key "${args[0]}" set to "${args[1]}"`))
 })
 
-commands.register_command("usrref", (player, args) => {
+commands.register_command("usrref", "Refresh local user data.", (player, args) => {
     let profileData = player.profile.player_data_buffer()
     send_data(player.socket, DataType.PLAYER_PROFILE_DATA, player.local_identifier, profileData)
     broadcast_data(player, DataType.PLAYER_PROFILE_DATA, player.global_identifier, profileData)
@@ -191,7 +195,7 @@ commands.register_command("usrref", (player, args) => {
     send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
 })
 
-commands.register_command("noclip", (player, args) => {
+commands.register_command("noclip", "Toggle noclip", (player, args) => {
     player.profile.noclip = !player.profile.noclip
     let profileData = player.profile.player_data_buffer()
     send_data(player.socket, DataType.PLAYER_PROFILE_DATA, player.local_identifier, profileData)
@@ -200,7 +204,7 @@ commands.register_command("noclip", (player, args) => {
     send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
 })
 
-commands.register_command("nerdstats", (player, args) => {
+commands.register_command("nerdstats", "nerdstats. stats for nerds.", (player, args) => {
     //store node memory usage
     const mem = `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100) / 100} MB`;
     //store node uptime
