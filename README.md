@@ -13,7 +13,7 @@ GoldenBedrock is an experimental private server for the game [Breaworlds](https:
 > The server code is not optimized for production.
 > Use at your own risk.
 
-## Project Status: Pre-Alpha (Proof of Concept)
+## Project Status: Alpha (Proof of Concept)
 
 GoldenBedrock is still heavy work in progress. 
 
@@ -27,7 +27,13 @@ For a full list of features that work and don't work, read [the progress page](.
 
 Currently, there is not an official instance of GoldenBedrock running.
 
-You can run a development client with the `run-client.bat` file, or by opening a terminal in the `client` folder and running the following command:
+If you are using the [Breaworlds Private Server Manager (BWPSM)](https://github.com/RealMCoded/Breaworlds-PrivateServerManager), you can add a server that points to the localhosted version of GoldenBedrock.
+
+```
+ew0KICAiU2VydmVyTmFtZSI6ICJHb2xkZW5CZWRyb2NrLUxvY2FsaG9zdCIsDQogICJTZXJ2ZXJJcCI6ICIxMjcuMC4wLjEiLA0KICAiU2VydmVyUG9ydCI6ICIxODAxIiwNCiAgIlNlcnZlckJpbyI6ICJBIGxvY2FsaG9zdGVkIHZlcnNpb24gb2YgR29sZGVuQmVkcm9jaywgZm9yIGRldmVsb3BtZW50IHVzZS4iLA0KICAiU2VydmVyU29jaWFsTGluayI6ICIiLA0KICAiU2VydmVyU29jaWFsTmFtZSI6ICIiDQp9
+```
+
+Alternatively, you can run a development client with the `run-client.bat` file, or by opening a terminal in the `client` folder and running the following command:
 ```ps
 .\Breaworlds-PrivateServer.exe 127.0.0.1 1801 GoldenBedrock-Development
 ```
@@ -65,8 +71,9 @@ REPORTS_WEBHOOK="" #The webhook used for world and player reports. Default: (non
 BLACKLISTED_USER_NAMES="quu98" #Disabled registrations for a particular player name, separated with |. example: "quu98|dev"
 BLACKLISTED_WORLD_NAMES="breaworlds" #Disabled world registrations for a particular world name, separated with |. example: "tutorial|breaworlds|rewards"
 RECOVERY_MAILER_SERVICE="gmail" #Service used for sending recovery emails. Default: gmail
-RECOVERY_MAILER_EMAIL="" #Email used for the recovery mailer.
-RECOVERY_MAILER_PASSWORD="" #Password for the recovery mailer.
+RECOVERY_MAILER_EMAIL="" #Email used for the recovery mailer. Defailt: <blank>
+RECOVERY_MAILER_DISPLAY_EMAIL="" #Email origin. Defailt: <blank>
+RECOVERY_MAILER_PASSWORD="" #Password for the recovery mailer. Defailt: <blank>
 ```
 
 Feel free to change these values as you wish. Player cap should be OK at larger values, I use 100 as a cap just to be safe.
