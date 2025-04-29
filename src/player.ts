@@ -200,7 +200,6 @@ class Player
                 const uname = reader.readArrayAsString(uname_size);
                 const passw_size = reader.readUint8();
                 const passw = reader.readArrayAsString(passw_size);
-                const accnum = reader.readUint16();
                 const accounts = reader.readUint16();
 
                 let account = await User.findOne({where: {username:uname}})
@@ -267,7 +266,6 @@ class Player
                 const uname = reader.readArrayAsString(uname_size);
                 const email_size = reader.readUint8();
                 const email = reader.readArrayAsString(email_size);
-                const accnum = reader.readUint16();
                 const accounts = reader.readUint16();
                 const token = generate_token();
 
