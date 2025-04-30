@@ -152,7 +152,7 @@ class Player
 
         if (!this.active && this.world == "" && Date.now() > this.creation_time + 60000 )
         {
-            this.log("Inactive for 60 seconds, kicked.")
+            this.log("Inactive on title screen for 60 seconds, kicked.")
             send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("You have been disconnected for 60 seconds of inactivity on the login screen."))
             this.close()
         }
@@ -327,7 +327,6 @@ class Player
 
             case CommandType.RECOVER:
             {
-                let success:boolean;
                 let message:Buffer;
 
                 const uname_size = reader.readUint8();
@@ -339,18 +338,11 @@ class Player
                 let account = await User.findOne({where: {username:uname, email:email}})
 
                 if (account == null)
-                {
-                    success = false
                     message = string_buffer("~3Recovery failed! ~0There is no account with that username and email on this server.")
-                }
                 else if (uname.length < 1 || email.length < 1)
-                {
-                    success = false
                     message = string_buffer(`~3Recovery failed! ~0You must provide a username and email.`)
-                }
                 else
                 {
-                    success = true
                     message = string_buffer(`~1An email has been sent with your account token. Check your spam folder.`)
                     send_recovery_email(account.username, account.token, account.email)
                 }
