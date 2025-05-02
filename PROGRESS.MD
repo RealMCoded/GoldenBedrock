@@ -64,6 +64,14 @@ Listing is not 100% complete.
 
 - [ ] Purchasing items
 
+## Weekly Challenge
+
+- [ ] Random challenges
+
+- [ ] Challenge Leaderboards
+
+- [ ] Challenge Rewards
+
 ## Worlds
 
 - [x] World Creation (Terrain generation)
@@ -74,9 +82,9 @@ Listing is not 100% complete.
 
 - [x] Tile Deletion (Breaking)
 
-- [X] Tile drops
+- [X] Tile drops (not 100% accurate)
 
-- [ ] Tile gems
+- [x] Tile gems (not 100% accurate)
 
 - [ ] Tile Ownership (Small, Medium, Large locks)
 
@@ -88,11 +96,11 @@ Listing is not 100% complete.
 
 ## Moderation
 
-- [ ] Banning
+- [ ] Banning Players
 
-- [ ] Muting
+- [ ] Banning Worlds
 
-- [ ] World locking
+- [ ] Muting players
 
 - [ ] ModRank - Guardian
 
@@ -101,3 +109,13 @@ Listing is not 100% complete.
 - [ ] ModRank - Admin
 
 - [ ] ModRank - Owner
+
+## Non-Vanilla features (things I want to add eventually)
+
+- [ ] BWPSM intergration (automatic code generator)
+
+- [ ] API with server information (version, playercount, etc.)
+
+- [ ] Admin panel (Via terminal)
+
+- [ ] First time setup

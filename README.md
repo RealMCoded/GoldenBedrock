@@ -9,9 +9,7 @@
 GoldenBedrock is an experimental private server for the game [Breaworlds](https://breaworldsgame.com) written in Node.js with Typescript. It's custom written from reverse-engineering the client code of an old developer build (dated around November 2020).
 
 > [!IMPORTANT]  
-> GoldenBedrock is not (and probably never will be) production ready software. 
-> The server code is not optimized for production.
-> Use at your own risk.
+> GoldenBedrock is not (and probably never will be) production ready software. The server code is not optimized for production. Use at your own risk.
 
 ## Project Status: Alpha (Proof of Concept)
 
