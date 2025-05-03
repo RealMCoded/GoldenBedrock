@@ -92,6 +92,8 @@ Listing is not 100% complete.
 
 - [ ] Tree grow times
 
+- [ ] Splicing Seeds
+
 - [ ] Drop saving
 
 ## Moderation
