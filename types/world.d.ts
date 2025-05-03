@@ -28,5 +28,3 @@ interface TileData
     key:string,
     value:any
 }
-
-export {WorldData, Tile}

@@ -6,7 +6,6 @@
     for now the current system is fine for small scale uses but will cause issues when more people get on a server.
 */
 
-import {WorldData, Tile} from './WorldTypes'
 import World from "./models/World"
 import {Op} from "sequelize"
 import * as fs from 'fs';
