@@ -59,6 +59,7 @@ If you want to configure your MOTD, read [this page](./MOTD-GUIDE.md)!
 Configuration is done via `.env` files. Create a file called `.env` in the root directory and pre-fill it with this content.
 
 ```env
+ENV = "prod" #Server environment. "dev" enables extra logging. Valid options: dev, prod. Default: prod.
 PORT = "1801" #The port the server is hosted on. Default: 1801
 PLAYER_CAP = "100" #How many sessions can be connected at once. Default: 100
 REGISTRATIONS_OPEN = "true" #Toggle if registrations are open. Default: true
@@ -66,6 +67,7 @@ IGNORE_VERSION = "false" #Allows versions other than 3.8.3 to connect. Default: 
 SWEAR_FILTER = "false" #Censors swearing. Default: false
 CONSOLE_LOG = "true" #Toggle output logging. Default: true
 REPORTS_WEBHOOK="" #The webhook used for world and player reports. Default: (none)
+SERVER_NAME="GoldenBedrock" #The name of your server. Default: "GoldenBedrock"
 BLACKLISTED_USER_NAMES="quu98" #Disabled registrations for a particular player name, separated with |. example: "quu98|dev"
 BLACKLISTED_WORLD_NAMES="breaworlds" #Disabled world registrations for a particular world name, separated with |. example: "tutorial|breaworlds|rewards"
 RECOVERY_MAILER_SERVICE="gmail" #Service used for sending recovery emails. Default: gmail

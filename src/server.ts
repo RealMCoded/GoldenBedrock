@@ -91,7 +91,33 @@ export class APIServer
     constructor()
     {
         this.server = net.createServer(socket => {
-            socket.write('HTTP/1.1 200 OK\n\nhello world')
+            let data:string = JSON.stringify({
+                time: Date.now(),
+                server: {
+                    name: "GoldenBedrock",
+                    goldenbedrock: {
+                        version: "X.X.X",
+                        commit: "AbCdEf0",
+                        env: "dev"
+                    }
+                },
+                players: {
+                    max: 0,
+                    active: 0
+                },
+                worlds: {
+                    count: 0,
+                    active: 0
+                }
+            })
+
+            const reply:string = `HTTP/1.1 200 OK\r\n` +
+            `Content-Type: application/json\r\n` +
+            `Content-Length: ${Buffer.byteLength(data)}\r\n` +
+            `\r\n` +
+            data;
+
+            socket.write(reply)
             socket.end()
         })
 
