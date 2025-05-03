@@ -1,4 +1,11 @@
 import { online } from "./main";
+import * as net from "net";
+import { Player } from "./player";
+
+function findPlayer(socket:net.Socket): Player | undefined
+{
+    return online.find(element => element.socket === socket)
+}
 
 function generate_token()
 {
@@ -308,4 +315,4 @@ function point_in_rectangle(point_x:number, point_y:number, rectangle_x1:number,
 	return false;
 }
 
-export {generate_token, get_flag, string_buffer, point_in_rectangle, validate_string, account_online}
+export {findPlayer, generate_token, get_flag, string_buffer, point_in_rectangle, validate_string, account_online}
