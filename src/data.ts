@@ -103,7 +103,6 @@ function update_dialog(player:Player, dialog:Dialog)
     header.writeUInt16LE(5, 2); //data type
 
     player.currentDialog = dialog.name
-    console.log(dialog.name)
 
     let finalBuffer = Buffer.concat(Array.prototype.concat(header, dialog.elements)); //combine header and buffer data
     finalBuffer.writeUInt16LE(finalBuffer.length, 0); //write size to header

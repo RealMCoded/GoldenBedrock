@@ -2,7 +2,7 @@ declare namespace NodeJS
 {
     interface ProcessEnv
     {
-        ENV: "prod" | "dev";
+        NODE_ENV: "prod" | "dev";
         PORT: string;
         PLAYER_CAP: string;
         REGISTRATIONS_OPEN: "true" | "false";

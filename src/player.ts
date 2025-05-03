@@ -69,12 +69,14 @@ class Player
 
     private log(data:any)
     {
-        console.log(`[LOG:PlayerID ${this.id}] ` + data)
+        if (process.env.NODE_ENV == "dev")
+            console.log(`[LOG:PlayerID ${this.id}] ` + data)
     }
 
     private error(data:any)
     {
-        console.error(`[ERR:PlayerID ${this.id}] ` + data)
+        if (process.env.NODE_ENV == "dev")
+            console.error(`[ERR:PlayerID ${this.id}] ` + data)
     }
 
     warp(world:string)
@@ -435,8 +437,8 @@ class Player
                 let range_str = reader.readUint16()
                 let range_int = reader.readUint16()
 
-                console.log(dialog_name)
-                console.log(sub_action)
+                this.log(`Dialog Name: ${dialog_name}`)
+                this.log(`Dialog SubAction: ${sub_action}`)
 
                 let dict_str:{key:string, value:string}[] = []
                 let dict_int:{key:string, value:number}[] = []
@@ -457,9 +459,6 @@ class Player
                     let value = reader.readUint16()
                     dict_int.push({key, value})
                 }
-
-                console.log(dict_str)
-                console.log(dict_int)
 
                 switch(dialog_name)
                 {
@@ -703,7 +702,7 @@ class Player
 
                 let item = reader.readUint16();
                 let click_count = reader.readUint16();
-                console.log(raw_click_x, raw_click_y, click_x, click_y, item, click_count)
+                this.log(`RawX: ${raw_click_x}, RawY: ${raw_click_y}, X: ${click_x}, Y: ${click_y}, Item: ${item}, Clicks: ${click_count}`)
                 let item_data = item_from_id(item);
 
                 const world_data = tiles_at_location(this.world, click_x, click_y)
@@ -712,7 +711,7 @@ class Player
 
                 if (item == item_id.fist)
                 {
-                    console.log("Fist")
+                    this.log("Fist")
 
                     if (world_data.foreground == 0 && world_data.background == 0) return;
 
@@ -809,7 +808,7 @@ class Player
                 }
                 else if (item == item_id.wrench)
                 {
-                    console.log("Wrench click interaction")
+                    this.log("Wrench click interaction")
 
                     //player wrench
                     online.forEach(element => {
@@ -858,7 +857,7 @@ class Player
                 }
                 else // everything else
                 {
-                    console.log("Other item interaction")
+                    this.log("Other item interaction")
 
                     switch(item_data.type)
                     {
