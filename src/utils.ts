@@ -1,6 +1,41 @@
 import { online } from "./main";
 import * as net from "net";
 import { Player } from "./player";
+import { items } from './item-id'
+
+function item_from_id(id:number)
+{
+    return items[id] || {
+        name: "Unknown #" + id,
+        info: "Unknown Item with ID " + id,
+        type: ITEM_TYPE.NONE,
+        body_layer: BODY_LAYER.none,
+        rarity: 0,
+        farmability: 0,
+        hardness: 0,
+        can_trade: false,
+        can_trash: true,
+        can_drop: false,
+        can_lock: false,
+        is_solid: false
+    }
+}
+
+function item_id_from_name(name:string)
+{
+    let item_id:number = 0;
+
+    for(const item in items)
+    {
+        if (items[item].name === name)
+        {
+            item_id = +item
+            break;
+        }
+    }
+
+    return item_id
+}
 
 /**
  * Returns player element from socket
@@ -348,4 +383,4 @@ function point_in_rectangle(point_x:number, point_y:number, rectangle_x1:number,
 	    return false;
 }
 
-export {findPlayer, generate_token, get_flag, string_buffer, point_in_rectangle, validate_string, account_online}
+export {findPlayer, generate_token, get_flag, string_buffer, point_in_rectangle, validate_string, account_online, item_from_id, item_id_from_name}

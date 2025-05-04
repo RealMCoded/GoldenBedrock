@@ -3,9 +3,8 @@
 import * as net from "net";
 import User from "./models/User";
 import { get_flag } from "./utils";
-import { item_id, items } from "./item-id";
+import { items } from "./item-id";
 import { DataType, send_data } from "./data";
-import { BODY_LAYER, item_data } from "./item-types";
 
 class PlayerProfile
 {

@@ -3,7 +3,7 @@ import { Player } from "./player";
 import { string_buffer, validate_string } from "./utils";
 import { online, motd } from "./main";
 import { Dialog } from "./dialog";
-import { item_id, items } from "./item-id";
+import { items } from "./item-id";
 
 type CommandCallback = (player:Player, args: string[]) => any;
 
