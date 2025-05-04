@@ -1,6 +1,6 @@
 # GoldenBedrock feature list
 
-Listing is not 100% complete.
+Listing is not 100% complete. If any features are missing create a bug report.
 
 ## Accounts / Avatar
 
@@ -64,13 +64,17 @@ Listing is not 100% complete.
 
 - [ ] Purchasing items
 
-## Weekly Challenge
+## Challenges / Quests
 
-- [ ] Random challenges
+- [ ] Weekly challenge randomization
 
-- [ ] Challenge Leaderboards
+- [ ] Weekly challenge Leaderboards
 
-- [ ] Challenge Rewards
+- [ ] Weekly challenge Rewards
+
+- [ ] Quests
+
+- [ ] Item Quests
 
 ## Worlds
 
