@@ -39,6 +39,12 @@ enum CommandType
     KEY_ALT_PRESS = 37 //most likely residual (used to serve a purpose but doesn't anymore.)
 }
 
+enum PlayerDirection
+{
+    LEFT = -1,
+    RIGHT = 1
+}
+
 class Player
 {
     socket: net.Socket;
@@ -47,6 +53,7 @@ class Player
     active:boolean = false;
     x:number = 0;
     y:number = 0;
+    direction:number = PlayerDirection.LEFT
     world:string = "";
     currentDialog:string = "";
     dialog_item:number = 0;
@@ -356,7 +363,7 @@ class Player
             case CommandType.FRIENDS_MENU:
             {
                 update_dialog(this, new Dialog("menu.friends")
-                .ItemText(true, `Friends - 0/0 `, 72, 0)
+                .ItemText(true, `~1Friends - 0/0 `, 72, 0)
                 .Text(true, "Friends to be added eventually.", 48)
                 .Button(true, "close", "Close")
                 )
@@ -612,7 +619,7 @@ class Player
                                 let count:number = +dict_str[0].value
     
                                 if (Number.isNaN(count) || count <= 0 || count > 999) //replace 999 with actual count
-                                        return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3You are dropping too little or too much of this item."))
+                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3You are dropping too little or too much of this item."))
                                 else
                                 {
                                     //spawn drop
@@ -623,7 +630,7 @@ class Player
                                     let countBuffer = Buffer.alloc(2)
                                     countBuffer.writeUint16LE(count)
                                     let xBuffer = Buffer.alloc(2)
-                                    xBuffer.writeUint16LE((this.x) + 32) //TODO: directions
+                                    xBuffer.writeUint16LE((this.x) + (32 * this.direction))
                                     let yBuffer = Buffer.alloc(2)
                                     yBuffer.writeUint16LE(this.y + 8)
 
@@ -1063,6 +1070,11 @@ class Player
                 //get x and y
                 const new_x = reader.readUint16();
                 const new_y = reader.readUint16();
+
+                if (new_x > this.x)
+                    this.direction = PlayerDirection.RIGHT
+                else if (new_x < this.x)
+                    this.direction = PlayerDirection.LEFT
 
                 this.x = new_x;
                 this.y = new_y;
