@@ -4,9 +4,9 @@ function generate_email(username:string, token:string)
 {
     return `<p>Hello, ${username}.</p>
 
-<p>You are receiving this email because someone requested the token for the GoldenBedrock account linked to this email. If this wasn't you, you can ignore this email.</p>
+<p>You are receiving this email because someone requested the token for the GoldenBedrock account linked to this email.<br>If this wasn't you, you can ignore this email.</p>
 
-<h3>Your GoldenBedrock Token is: <code>${token}</code></h3>
+<h3>Your GoldenBedrock account token is: <code>${token}</code></h3>
 
 <hr>
 
