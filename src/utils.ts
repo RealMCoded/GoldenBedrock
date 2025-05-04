@@ -2,12 +2,20 @@ import { online } from "./main";
 import * as net from "net";
 import { Player } from "./player";
 
+/**
+ * Returns player element from socket
+ * @param socket Network Socket
+ */
 function findPlayer(socket:net.Socket): Player | undefined
 {
     return online.find(element => element.socket === socket)
 }
 
-function generate_token()
+/**
+ * Generates a random 6 letter long token.
+ * @returns Random Token
+ */
+function generate_token(): string
 {
     const chars:string = "QWERTYUIOPASDFGHJKLZXCVBNM0123456789"
     let token:string = "";
@@ -18,14 +26,24 @@ function generate_token()
     return token;
 }
 
-function validate_string(string:string)
+/**
+ * 
+ * @param string Input string
+ * @returns boolean
+ */
+function validate_string(string:string): boolean
 {
     let regex = /^[A-Za-z0-9]+$/
     
     return regex.test(string)
 }
 
-function account_online(username:string)
+/**
+ * Returns if an account is online.
+ * @param username 
+ * @returns boolean
+ */
+function account_online(username:string): boolean
 {
     let is_online:boolean = false;
     online.forEach(element => {
@@ -47,7 +65,12 @@ function string_buffer(string:string) : Buffer
     return Buffer.from(string + "\0", 'utf-8')
 }
 
-function get_flag(country:string)
+/**
+ * Returns the flag sprite ID for a country.
+ * @param country 
+ * @returns Country ID
+ */
+function get_flag(country:string): number
 {
     const country_list = [
         "ad",
@@ -306,13 +329,23 @@ function get_flag(country:string)
     return returnCountry || 229
 }
 
-function point_in_rectangle(point_x:number, point_y:number, rectangle_x1:number, rectangle_y1:number, rectangle_x2:number, rectangle_y2:number)
+/**
+ * Returns if a point is in a rectangle
+ * @param point_x 
+ * @param point_y 
+ * @param rectangle_x1 Top left X of Rectangle
+ * @param rectangle_y1 Top left Y of Rectangle
+ * @param rectangle_x2 Bottom right X of Rectangle
+ * @param rectangle_y2 Bottom right Y of Rectangle
+ * @returns boolean
+ */
+function point_in_rectangle(point_x:number, point_y:number, rectangle_x1:number, rectangle_y1:number, rectangle_x2:number, rectangle_y2:number) : boolean
 {
     //taken from GameMaker's HTML5 runner
-    if( ( point_x >= rectangle_x1 && point_x <= rectangle_x2 ) && ( point_y >= rectangle_y1 && point_y <= rectangle_y2 ) ){
+    if( ( point_x >= rectangle_x1 && point_x <= rectangle_x2 ) && ( point_y >= rectangle_y1 && point_y <= rectangle_y2 ) )
 	    return true;
-	}
-	return false;
+	else
+	    return false;
 }
 
 export {findPlayer, generate_token, get_flag, string_buffer, point_in_rectangle, validate_string, account_online}
