@@ -60,7 +60,7 @@ Configuration is done via `.env` files. Create a file called `.env` in the root 
 
 ```env
 NODE_ENV = "prod" #Server environment. dev enables logging. Valid options: dev, prod. Default: prod.
-PORT = "1801" #The port the server is hosted on. Default: 1801
+PORT = "1801" #The port the GameServer is hosted on. The APIServer is hosted on Port+1. Default: 1801
 PLAYER_CAP = "100" #How many sessions can be connected at once. Default: 100
 REGISTRATIONS_OPEN = "true" #Toggle if registrations are open. Default: true
 IGNORE_VERSION = "false" #Allows versions other than 3.8.3 to connect. Default: false
