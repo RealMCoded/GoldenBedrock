@@ -13,6 +13,12 @@ function getCommitOrFail()
     }
 }
 
+function isBrowserRequest(data: Buffer): boolean 
+{
+    const str = data.toString();
+    return str.startsWith("GET") || str.startsWith("POST") || str.startsWith("HEAD") || str.startsWith("OPTIONS");
+}
+
 function item_from_id(id:number)
 {
     return items[id] || {

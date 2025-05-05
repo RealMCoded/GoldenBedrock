@@ -13,6 +13,7 @@ import { GameServer, APIServer } from './server';
 import { getCommitOrFail } from './utils';
 import BadWordsNext from 'bad-words-next'
 import en from 'bad-words-next/lib/en'
+import { version } from '../package.json'
 
 let online:Player[] = [];
 //let activeWorlds:GameWorld[] = []
@@ -22,14 +23,10 @@ const blacklist = {
     user: process.env.BLACKLISTED_USER_NAMES.split("|"),
 }
 const commit:string = getCommitOrFail();
+
+console.log(`GoldenBedrock - Version v${version} (commit ${commit.slice(0,7)})`)
+
 let motd:MessageOfTheDay = new MessageOfTheDay()
-
-function isBrowserRequest(data: Buffer): boolean 
-{
-    const str = data.toString();
-    return str.startsWith("GET") || str.startsWith("POST") || str.startsWith("HEAD") || str.startsWith("OPTIONS");
-}
-
 const GServer:GameServer = new GameServer();
 const AServer:APIServer = new APIServer();
 
