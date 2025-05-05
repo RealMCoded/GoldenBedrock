@@ -38,6 +38,8 @@ Alternatively, you can run a development client with the `run-client.bat` file, 
 
 ## Setting up
 
+**If you plan to make your server public, read the [Code of Conduct](./CODE-OF-CONDUCT.md).**
+
 GoldenBedrock requires [Node.js](https://nodejs.org/en) (Use any version that is 20 or newer)
 
 During installation, make sure to install Chocolaty as it is required for `sqlite3`.
