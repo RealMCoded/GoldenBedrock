@@ -2,6 +2,16 @@ import { online } from "./main";
 import * as net from "net";
 import { Player } from "./player";
 import { items } from './item-id'
+import { execSync } from "child_process";
+
+function getCommitOrFail() 
+{
+    try {
+        return execSync("git rev-parse HEAD").toString().trim();
+    } catch (e) {
+        return "GIT-NOT-INSTALLED";
+    }
+}
 
 function item_from_id(id:number)
 {
@@ -383,4 +393,4 @@ function point_in_rectangle(point_x:number, point_y:number, rectangle_x1:number,
 	    return false;
 }
 
-export {findPlayer, generate_token, get_flag, string_buffer, point_in_rectangle, validate_string, account_online, item_from_id, item_id_from_name}
+export {findPlayer, generate_token, get_flag, string_buffer, point_in_rectangle, validate_string, account_online, item_from_id, item_id_from_name, getCommitOrFail}

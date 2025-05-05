@@ -3,7 +3,8 @@ import { Player } from "./player";
 import { DataType, send_data } from "./data";
 import { Dialog } from "./dialog";
 import { findPlayer } from './utils';
-import { online } from './main'
+import { commit, online } from './main'
+import { version } from '../package.json'
 
 import sequelize from "./sequelize";
 import User from "./models/User";
@@ -90,15 +91,16 @@ export class APIServer
     server:net.Server;
     constructor()
     {
+        //Layout of what I want API data to look like.
         this.server = net.createServer(socket => {
             let data:string = JSON.stringify({
                 time: Date.now(),
                 server: {
                     name: "GoldenBedrock",
                     goldenbedrock: {
-                        version: "X.X.X",
-                        commit: "AbCdEf0",
-                        env: "dev"
+                        version: version,
+                        commit: commit,
+                        env: process.env.NODE_ENV
                     }
                 },
                 players: {
@@ -107,7 +109,7 @@ export class APIServer
                 },
                 worlds: {
                     count: 0,
-                    active: 0
+                    active: null
                 }
             })
 

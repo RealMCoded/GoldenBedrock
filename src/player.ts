@@ -3,7 +3,7 @@ import { BinaryReader } from "@picode/binary-reader";
 import { DataType, send_data, update_dialog, broadcast_data, UserEvents } from "./data";
 import { PlayerProfile } from "./profile";
 import { Dialog } from "./dialog";
-import { online, motd } from "./main";
+import { online, motd, wordfilter, blacklist } from "./main";
 import User from "./models/User";
 import { account_online, generate_token, point_in_rectangle, string_buffer, validate_string, item_from_id } from "./utils";
 import { convert_to_game_format, create_world, find_spawn, get_tile_data, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
@@ -185,14 +185,26 @@ class Player
                 if(ver !== '3.8.3')
                 {
                     this.log(`Unsupported version - ${ver}`)
+                    if (process.env.IGNORE_VERSION == "true")
+                    {
+                        update_dialog(this, new Dialog()
+                        .ItemText(true, "~1Unsupported Client", 72, 0)
+                        .Text(true, "Your game version is not supported.", 48)
+                        .Text(true, "Please use client version ~13.8.3~0.", 48)
+                        .Button(true, "ok", "Okay.")
+                        )
+                    }
+                    else
+                    {
                         update_dialog(this, new Dialog()
                         .ItemText(true, "~1Unsupported Client", 72, 0)
                         .Text(true, "Your game version is not supported.", 48)
                         .Text(true, "Please use client version ~13.8.3~0.", 48)
                         .Text(true, "", 48)
                         )
-                    this.close()
-                    return;
+                        this.close()
+                        return;
+                    }
                 }
 
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~rConnected to GoldenBedrock successfully!"))
@@ -279,7 +291,12 @@ class Player
 
                 let account = await User.findOne({where: {username:uname}})
 
-                if (account != null)
+                if (process.env.REGISTRATIONS_OPEN == "false")
+                {
+                    success = false
+                    message = string_buffer(`~3Registration failed! ~0Registrations are closed on this server.`)
+                }
+                else if (account != null)
                 {
                     success = false
                     message = string_buffer(`~3Registration failed! ~0An account with that name already exists.`)
@@ -299,7 +316,11 @@ class Player
                     success = false
                     message = string_buffer(`~3Registration failed! ~0Usernames can only contain characters A-z 0-9.`)
                 }
-                //TODO: Blacklisted name check
+                else if (blacklist.user.includes(uname))
+                {
+                    success = false
+                    message = string_buffer(`~3Registration failed! ~0That username is blacklisted on this server.`)
+                }
                 else
                 {
                     account = await User.create({username: uname, email, token})
@@ -1151,6 +1172,8 @@ class Player
                 const message_size = reader.readInt8();
                 let mymessage = reader.readArrayAsString(message_size).replace("\r\n", "").replace("\n", "")
 
+                if (process.env.SWEAR_FILTER == "true") mymessage = wordfilter.filter(mymessage)
+
                 if (mymessage.charAt(0) == "/") //is command
                 {
                     send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5${mymessage}`))
@@ -1159,7 +1182,6 @@ class Player
                 }
                 else
                 {
-                    //TODO: Filtering
                     //console
                     let msg = string_buffer(`[~1${this.profile.data.username}~0] ${mymessage}`)
                     broadcast_data(this, DataType.CONSOLE_MESSAGE, msg)

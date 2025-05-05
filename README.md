@@ -64,15 +64,15 @@ PORT = "1801" #The port the server is hosted on. Default: 1801
 PLAYER_CAP = "100" #How many sessions can be connected at once. Default: 100
 REGISTRATIONS_OPEN = "true" #Toggle if registrations are open. Default: true
 IGNORE_VERSION = "false" #Allows versions other than 3.8.3 to connect. Default: false
-SWEAR_FILTER = "false" #Censors swearing. Default: false
+SWEAR_FILTER = "true" #Censors swearing. Default: true
 REPORTS_WEBHOOK="" #The webhook used for world and player reports. Default: (none)
 SERVER_NAME="GoldenBedrock" #The name of your server. Default: "GoldenBedrock"
 BLACKLISTED_USER_NAMES="quu98" #Disabled registrations for a particular player name, separated with |. example: "quu98|dev"
 BLACKLISTED_WORLD_NAMES="breaworlds" #Disabled world registrations for a particular world name, separated with |. example: "tutorial|breaworlds|rewards"
 RECOVERY_MAILER_SERVICE="gmail" #Service used for sending recovery emails. Default: gmail
-RECOVERY_MAILER_EMAIL="" #Email used for the recovery mailer. Defailt: <blank>
-RECOVERY_MAILER_DISPLAY_EMAIL="" #Email origin. Defailt: <blank>
-RECOVERY_MAILER_PASSWORD="" #Password for the recovery mailer. Defailt: <blank>
+RECOVERY_MAILER_EMAIL="" #Email used for the recovery mailer. Default: <blank>
+RECOVERY_MAILER_DISPLAY_EMAIL="" #Email origin. Default: <blank>
+RECOVERY_MAILER_PASSWORD="" #Password for the recovery mailer. Default: <blank>
 ```
 
 Feel free to change these values as you wish. Player cap should be OK at larger values, I use 100 as a cap just to be safe.
