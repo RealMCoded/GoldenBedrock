@@ -42,4 +42,3 @@ bin/
 data/worlds/*.bw
 package-lock.json
 *.sqlite
-!data/worlds/TUTORIAL.bw
