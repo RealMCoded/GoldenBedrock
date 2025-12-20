@@ -39,7 +39,7 @@ setInterval(() => {
         if (world.players.length == 0)
         {
             world_sessions.delete(world.name);
-            console.log(`Unloaded and saved world ${world.name} due to inactivity.`)
+            console.log(`Unloaded ${world.name} due to inactivity.`)
         }
     });
 }, process.env.BACKUP_INTERVAL_MINUTES as unknown as number * 60 * 1000);
