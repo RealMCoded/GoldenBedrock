@@ -1,11 +1,3 @@
-/*
-    TODO: Rewrite worlds to use classes. 
-    Instead of directly accessing world data files everytime, store the world data in an array that autosaves every so often.
-    it would keep the write times down.
-
-    for now the current system is fine for small scale uses but will cause issues when more people get on a server.
-*/
-
 import World from "./models/World"
 import {Op} from "sequelize"
 import * as fs from 'fs';
@@ -13,9 +5,76 @@ import * as fs from 'fs';
 
 class GameWorld
 {
+    data:WorldData = {
+        drop:[],
+        tiles:{
+            foreground: [],
+            background: []
+        }
+    };
+    name:string = "";
+
     constructor(name:string)
     {
-        
+        this.name = name;
+        if (fs.existsSync(`./data/worlds/${this.name}.bw`))
+        {
+            this.loadFromDisk();
+        }
+        else
+        {
+            this.generate();
+        }
+    }
+
+    loadFromDisk()
+    {
+        const data = fs.readFileSync(`./data/worlds/${this.name}.bw`, 'utf-8')
+        this.data = JSON.parse(data)
+    }
+
+    saveToDisk()
+    {
+        fs.writeFileSync(`./data/worlds/${this.name}.bw`, JSON.stringify(this.data))
+    }
+
+    generate()
+    {
+        for(let world_y = 25; world_y < 50; world_y++)
+        {
+            for(let world_x = 0; world_x < 100; world_x++)
+            {
+                this.data.tiles.foreground.push({x: world_x, y: world_y, id: 9, data:[]})
+                this.data.tiles.background.push({x: world_x, y: world_y, id: 15, data:[]})
+                    
+                //random cobble
+                if (world_y > 28 && Math.floor(Math.random() * 15) == 0)
+                {
+                    this.data.tiles.foreground.push({x: world_x, y: world_y, id: 13, data:[]})
+                }
+
+                //random lava
+                if (world_y > 34 && Math.floor(Math.random() * 10) == 0)
+                {
+                    this.data.tiles.foreground.push({x: world_x, y: world_y, id: 11, data:[]})
+                }
+
+                //random obsidian
+                if (world_y > 39 && Math.floor(Math.random() * 10) == 0)
+                {
+                    this.data.tiles.foreground.push({x: world_x, y: world_y, id: 727, data:[]})
+                }
+
+                //layers of bedrock
+                if (world_y > 47)
+                    this.data.tiles.foreground.push({x:world_x, y:world_y, id: 5, data:[]})
+            }
+        }
+
+        //spawn world entrance
+        const worldEntranceX = Math.floor(Math.random() * 100)
+        this.data.tiles.foreground.push({x:worldEntranceX, y:25, id: 5, data: []}) //bedrock
+        this.data.tiles.foreground.push({x:worldEntranceX, y:24, id: 7, data: []}) //door
     }
 }
 
@@ -54,8 +113,6 @@ async function random_world(current:string)
 
 function generate_world()
 {
-    //if (world_exists(name)) return;
-
     let world_data:WorldData = {
         drop:[],
         tiles:{
@@ -152,7 +209,6 @@ function find_spawn(name:string)
 {
     const data = get_world_data(name)
     let location:number[] = [0, 0]
-    //console.log(data.tiles.foreground)
 
     //World Entrance is only on the FG
     let layer = data.tiles.foreground
@@ -251,4 +307,4 @@ async function world_exists(name: string): Promise<boolean> {
     return data !== null;
 }
 
-export {go_world, world_exists, create_world, get_world_data, convert_to_game_format, Theme, find_spawn, tiles_at_location, random_world, modify_tile, get_tile_data}
+export { GameWorld, go_world, world_exists, create_world, get_world_data, convert_to_game_format, Theme, find_spawn, tiles_at_location, random_world, modify_tile, get_tile_data}
