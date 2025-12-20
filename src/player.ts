@@ -442,7 +442,7 @@ class Player
             case CommandType.ESC_MENU:
             {
                 update_dialog(this, new Dialog("menu.main")
-                .ItemText(true, `Menu - ~1${this.world}`, 72, 3)
+                .ItemText(true, `Menu - ~1${this.world?.name}`, 72, 3)
                 .Button(true, "warp", "Warp")
                 .Button(true, "respawn", "Respawn")
                 .Button(true, "shop", "Shop")
