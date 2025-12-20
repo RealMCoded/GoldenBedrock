@@ -95,14 +95,14 @@ class Player
             return;
         }
 
+        this.world?.players.splice(this.world.players.indexOf(this.profile.data.username), 1)
         this.active = false;
 
         if (!world_sessions.has(world))
-        {
             world_sessions.set(world, new GameWorld(world))
-        }
 
         this.world = world_sessions.get(world)!
+        this.world.players.push(this.profile.data.username)
 
         let successBuffer:Buffer = Buffer.alloc(1);
         successBuffer.writeUInt8(1);
@@ -118,6 +118,8 @@ class Player
     {
         if (this.active)
         {
+            if (this.world) this.world.players.splice(this.world.players.indexOf(this.profile.data.username), 1)
+
             let identifier = Buffer.alloc(4)
             identifier.writeInt32LE(this.id)
 
