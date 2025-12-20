@@ -8,7 +8,7 @@ declare namespace NodeJS
         REGISTRATIONS_OPEN: "true" | "false";
         IGNORE_VERSION: "true" | "false";
         SWEAR_FILTER: "true" | "false";
-        CONSOLE_LOG: "true" | "false";
+        BACKUP_INTERVAL_MINUTES: string;
         REPORTS_WEBHOOK: string;
         SERVER_NAME: string;
         BLACKLISTED_USER_NAMES: string;
