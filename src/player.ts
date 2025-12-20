@@ -212,6 +212,8 @@ class Player
 
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~rConnected to GoldenBedrock successfully!"))
                 send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("Learn more at ~5https://github.com/RealMCoded/GoldenBedrock"))
+                if (process.env.NODE_ENV == "dev") 
+                    send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("This server is running using the ~3DEVELOPMENT ENVIRONMENT~0{!!!} Do not use this for production!"))
             } break;
 
             case CommandType.LOGIN:
@@ -227,25 +229,34 @@ class Player
 
                 let account = await User.findOne({where: {username:uname}})
 
-                if (account == null)
+                if (process.env.NODE_ENV == "dev")
                 {
-                    success = false;
-                    message = string_buffer(`~3Account "${uname}" does not exit on this server. ~0Go register it!`)
-                }
-                else if (passw != account.token)
-                {
-                    success = false;
-                    message = string_buffer(`~3Login failed! ~0The token doesn't match the one associated with this account.`)
-                }
-                else if (account_online(uname))
-                {
-                    success = false;
-                    message = string_buffer(`~3Login failed! ~0This account is already logged in.`)
+                    send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3[DEV MODE] ~0Login checks are bypassed."))
+                    success = true;
+                    message = string_buffer(`~5Welcome back, ${uname}! ~0There are ${online.length} players online.`)
                 }
                 else
                 {
-                    success = true;
-                    message = string_buffer(`~5Welcome back, ${uname}! ~0There are ${online.length} players online.`)
+                    if (account == null)
+                    {
+                        success = false;
+                        message = string_buffer(`~3Account "${uname}" does not exit on this server. ~0Go register it!`)
+                    }
+                    else if (passw != account.token)
+                    {
+                        success = false;
+                        message = string_buffer(`~3Login failed! ~0The token doesn't match the one associated with this account.`)
+                    }
+                    else if (account_online(uname))
+                    {
+                        success = false;
+                        message = string_buffer(`~3Login failed! ~0This account is already logged in.`)
+                    }
+                    else
+                    {
+                        success = true;
+                        message = string_buffer(`~5Welcome back, ${uname}! ~0There are ${online.length} players online.`)
+                    }
                 }
 
                 //login response

@@ -25,6 +25,9 @@ const commit:string = getCommitOrFail();
 
 console.log(`GoldenBedrock - Version v${version} (commit ${commit.slice(0,7)})`)
 
+if (process.env.NODE_ENV == "dev")
+    console.log("\n!!! RUNNING IN DEVELOPMENT MODE !!!\nMultiple security checks are disabled. Do not use this for production!\n")
+
 let online:Player[] = [];
 let world_sessions:Map<string, GameWorld> = new Map();
 
