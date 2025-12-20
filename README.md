@@ -67,6 +67,7 @@ PLAYER_CAP = "100" #How many sessions can be connected at once. Default: 100
 REGISTRATIONS_OPEN = "true" #Toggle if registrations are open. Default: true
 IGNORE_VERSION = "false" #Allows versions other than 3.8.3 to connect. Default: false
 SWEAR_FILTER = "true" #Censors swearing. Default: true
+BACKUP_INTERVAL_MINUTES="1" #Interval in minutes for automatic world backups and disposal. Default: 1
 REPORTS_WEBHOOK="" #The webhook used for world and player reports. Default: (none)
 SERVER_NAME="GoldenBedrock" #The name of your server. Default: "GoldenBedrock"
 BLACKLISTED_USER_NAMES="quu98" #Disabled registrations for a particular player name, separated with |. example: "quu98|dev"

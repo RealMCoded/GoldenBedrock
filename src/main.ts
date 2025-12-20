@@ -32,4 +32,16 @@ let motd:MessageOfTheDay = new MessageOfTheDay()
 const GServer:GameServer = new GameServer();
 const AServer:APIServer = new APIServer();
 
+setInterval(() => {
+    console.log("Performing world backup and cleanup...");
+    world_sessions.forEach((world:GameWorld) => {
+        world.saveToDisk();
+        if (world.players.length == 0)
+        {
+            world_sessions.delete(world.name);
+            console.log(`Unloaded and saved world ${world.name} due to inactivity.`)
+        }
+    });
+}, process.env.BACKUP_INTERVAL_MINUTES as unknown as number * 60 * 1000);
+
 export {online, world_sessions, motd, commit, wordfilter, blacklist}
