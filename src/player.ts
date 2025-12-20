@@ -6,7 +6,7 @@ import { Dialog } from "./dialog";
 import { online, motd, wordfilter, blacklist } from "./main";
 import User from "./models/User";
 import { account_online, generate_token, point_in_rectangle, string_buffer, validate_string, item_from_id } from "./utils";
-import { convert_to_game_format, create_world, find_spawn, get_tile_data, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
+import { GameWorld, convert_to_game_format, create_world, find_spawn, get_tile_data, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
 import { items } from "./item-id";
 import { commands } from "./command-processor";
 import { send_recovery_email } from "./mailer";
