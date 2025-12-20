@@ -3,10 +3,10 @@ import { BinaryReader } from "@picode/binary-reader";
 import { DataType, send_data, update_dialog, broadcast_data, UserEvents } from "./data";
 import { PlayerProfile } from "./profile";
 import { Dialog } from "./dialog";
-import { online, motd, wordfilter, blacklist } from "./main";
+import { online, motd, wordfilter, blacklist, world_sessions } from "./main";
 import User from "./models/User";
 import { account_online, generate_token, point_in_rectangle, string_buffer, validate_string, item_from_id } from "./utils";
-import { GameWorld, convert_to_game_format, create_world, find_spawn, get_tile_data, get_world_data, modify_tile, random_world, Theme, tiles_at_location, world_exists } from "./world";
+import { GameWorld, random_world, Theme } from "./world";
 import { items } from "./item-id";
 import { commands } from "./command-processor";
 import { send_recovery_email } from "./mailer";
@@ -53,7 +53,7 @@ class Player
     x:number = 0;
     y:number = 0;
     direction:number = PlayerDirection.LEFT
-    world:string = "";
+    world:GameWorld|null = null;
     currentDialog:string = "";
     dialog_item:number = 0;
     dialog_tile:number[] = [0, 0, 0]; //x, y, id
@@ -89,7 +89,7 @@ class Player
     {
         world = world.toUpperCase()
 
-        if (this.world == world)
+        if (this.world && this.world.name == world)
         {
             send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Warp failed! ~0You cannot warp to the same world you are already in."));
             return;
@@ -97,11 +97,12 @@ class Player
 
         this.active = false;
 
-        world_exists(world).then((exists) => {
-            if (!exists) create_world(this.world)
-        })
+        if (!world_sessions.has(world))
+        {
+            world_sessions.set(world, new GameWorld(world))
+        }
 
-        this.world = world
+        this.world = world_sessions.get(world)!
 
         let successBuffer:Buffer = Buffer.alloc(1);
         successBuffer.writeUInt8(1);
@@ -158,7 +159,7 @@ class Player
         buffer_u16, current_second
         */ 
 
-        if (!this.active && this.world == "" && Date.now() > this.creation_time + 60000 )
+        if (!this.active && !this.world && Date.now() > this.creation_time + 60000 )
         {
             this.log("Inactive on title screen for 60 seconds, kicked.")
             send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("You have been disconnected for 60 seconds of inactivity on the login screen."))
@@ -557,7 +558,7 @@ class Player
                     {
                         if (sub_action == "menu.sign.confirm")
                         {
-                            modify_tile(this.world, this.dialog_tile[0], this.dialog_tile[1], 2, this.dialog_tile[2], [dict_str[0].value])
+                            this.world?.modify_tile(this.dialog_tile[0], this.dialog_tile[1], 2, this.dialog_tile[2], [dict_str[0].value])
                         }
                     } break;
 
@@ -694,7 +695,7 @@ class Player
                         }
                         else if (sub_action == "warp.rnd")
                         {
-                            let world = await random_world(this.world)
+                            let world = await random_world(this.world?.name || "TUTORIAL");
 
                             if (world == "ERR_NO_OTHER_WORLDS")
                             {
@@ -715,6 +716,8 @@ class Player
 
             case CommandType.WORLD_CLICK:
             {
+                if (!this.world) return;
+
                 //Player hand movement for clicking
                 let event_buff = Buffer.alloc(2)
                 event_buff.writeUint16LE(UserEvents.HAND_ANGLE)
@@ -732,7 +735,7 @@ class Player
                 this.log(`RawX: ${raw_click_x}, RawY: ${raw_click_y}, X: ${click_x}, Y: ${click_y}, Item: ${item}, Clicks: ${click_count}`)
                 let item_data = item_from_id(item);
 
-                const world_data = tiles_at_location(this.world, click_x, click_y)
+                const world_data = this.world?.tiles_at_location(click_x, click_y)
 
                 let layer = +(world_data.foreground !== 0)+1
 
@@ -765,7 +768,7 @@ class Player
     
                         send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                         broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-                        modify_tile(this.world, click_x, click_y, layer, 0)
+                        this.world?.modify_tile(click_x, click_y, layer, 0)
 
                         //Summon drop of item
                         let drop_item = layer == 1 ? world_data.background : world_data.foreground
@@ -865,14 +868,13 @@ class Player
                     });
 
                     //tile wrench
-                    const world_data = tiles_at_location(this.world, click_x, click_y)
                     if (world_data.foreground == 0) return;
 
                     this.dialog_tile = [click_x, click_y, world_data.foreground]
 
                     if (world_data.foreground == item_id.wooden_sign)
                     {
-                        let sign_data = get_tile_data(this.world, click_x, click_y)
+                        let sign_data = this.world.get_tile_data(click_x, click_y)
                         update_dialog(this, new Dialog("menu.sign.edit")
                         .ItemText(true, "Edit sign", 72, 69)
                         .TextBox(true, "menu.sign.content", sign_data[0], 32)
@@ -906,7 +908,7 @@ class Player
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-                            modify_tile(this.world, click_x, click_y, 2, item)
+                            this.world?.modify_tile(click_x, click_y, 2, item)
 
                             await this.profile.edit_inventory(item, -1)
                             let invData:Buffer = this.profile.get_inventory_buffer()
@@ -929,7 +931,7 @@ class Player
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-                            modify_tile(this.world, click_x, click_y, 1, item)
+                            this.world?.modify_tile(click_x, click_y, 1, item)
 
                             await this.profile.edit_inventory(item, -1)
                             let invData:Buffer = this.profile.get_inventory_buffer()
@@ -967,7 +969,7 @@ class Player
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
-                            modify_tile(this.world, click_x, click_y, 2, item)
+                            this.world?.modify_tile(click_x, click_y, 2, item)
 
                             await this.profile.edit_inventory(item, -1)
                             let invData:Buffer = this.profile.get_inventory_buffer()
@@ -1007,6 +1009,7 @@ class Player
 
             case CommandType.WORLD_DATA:
             {
+                if (!this.world) return;
                 //NOTE: right now only the essentials are sent to the client.
 
                 //Step 1: World Data
@@ -1019,7 +1022,7 @@ class Player
                 world_size.writeUint16LE(100, 0) //x scale
                 world_size.writeUint16LE(50, 2) //y scale
 
-                let world_data = convert_to_game_format(get_world_data(this.world));
+                let world_data = this.world?.game_format()
 
                 let final_buffer = Buffer.concat(Array.prototype.concat([header, world_size], world_data))//combine header and buffer data
                 final_buffer.writeUInt16LE(final_buffer.length, 0); //write size to header
@@ -1034,7 +1037,7 @@ class Player
                 let destroyBuffer = Buffer.alloc(1);
                 destroyBuffer.writeUInt8(0);
 
-                let spawn = find_spawn(this.world)
+                let spawn = this.world.spawn_location//find_spawn(this.world)
 
                 let curX = Buffer.alloc(2); 
                 curX.writeUInt16LE(spawn[0]*32, 0);
@@ -1087,6 +1090,8 @@ class Player
 
             case CommandType.PLAYER_MOVEMENT:
             {
+                if (!this.world) return;
+
                 //get x and y
                 const new_x = reader.readUint16();
                 const new_y = reader.readUint16();
@@ -1111,14 +1116,14 @@ class Player
                 broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, leave, x_buffer, y_buffer)
 
                 //Interactable tiles
-                const world_data = tiles_at_location(this.world, Math.round(this.x/32), Math.round(this.y/32))
+                const world_data = this.world.tiles_at_location(Math.round(this.x/32), Math.round(this.y/32))
                 let tile_text:string = ""
 
                 switch(world_data.foreground)
                 {
                     case item_id.wooden_sign:
                     {
-                        tile_text = get_tile_data(this.world, Math.round(this.x/32), Math.round(this.y/32))[0]
+                        tile_text = this.world.get_tile_data(Math.round(this.x/32), Math.round(this.y/32))[0]
                     } break;
                 }
 
@@ -1138,11 +1143,12 @@ class Player
 
             case CommandType.RESPAWN:
             {
+                if (!this.world) return;
                 //Set player position to door X and Y
                 let destroyBuffer = Buffer.alloc(1);
                 destroyBuffer.writeUInt8(0);
 
-                let spawn = find_spawn(this.world)
+                let spawn = this.world.spawn_location
 
                 let curX = Buffer.alloc(2); 
                 curX.writeUInt16LE(spawn[0]*32, 0);

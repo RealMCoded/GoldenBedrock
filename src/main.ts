@@ -14,9 +14,8 @@ import { getCommitOrFail } from './utils';
 import BadWordsNext from 'bad-words-next'
 import en from 'bad-words-next/lib/en'
 import { version } from '../package.json'
+import { GameWorld } from './world';
 
-let online:Player[] = [];
-//let activeWorlds:GameWorld[] = []
 const wordfilter:BadWordsNext = new BadWordsNext({ data: en, placeholder:'*', placeholderMode: 'repeat' })
 const blacklist = {
     world: process.env.BLACKLISTED_WORLD_NAMES.split("|"),
@@ -26,8 +25,11 @@ const commit:string = getCommitOrFail();
 
 console.log(`GoldenBedrock - Version v${version} (commit ${commit.slice(0,7)})`)
 
+let online:Player[] = [];
+let world_sessions:Map<string, GameWorld> = new Map();
+
 let motd:MessageOfTheDay = new MessageOfTheDay()
 const GServer:GameServer = new GameServer();
 const AServer:APIServer = new APIServer();
 
-export {online, motd, commit, wordfilter, blacklist}
+export {online, world_sessions, motd, commit, wordfilter, blacklist}

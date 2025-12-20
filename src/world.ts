@@ -14,7 +14,6 @@ class GameWorld
     };
     spawn_location:number[] = [0, 0];
     name:string = "";
-    sessionId:number = 0;
 
     constructor(name:string)
     {
@@ -27,6 +26,7 @@ class GameWorld
         {
             World.create({ name: this.name})
             this.generate();
+            this.saveToDisk();
         }
         this.spawn_location = this.get_spawn();
     }
@@ -192,6 +192,18 @@ class GameWorld
             else if (layer == 2)
                 this.data.tiles.foreground.push({x:x, y:y, id:tile, data:tile_data})
         }
+    }
+
+    public get_tile_data(x:number, y:number)
+    {
+        let tiledata:any[] = [];
+
+        this.data.tiles.foreground.forEach((element:Tile) => {
+            if (element.x == x && element.y == y)
+                tiledata = element.data
+        });
+
+        return tiledata
     }
 }
 
