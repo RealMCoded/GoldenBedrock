@@ -931,7 +931,7 @@ class Player
                 drop_item = reader.readUint16()
                 drop_count = reader.readUint16()
 
-                let destroyDrop = buffer_bool(false)
+                let destroyDrop = buffer_bool(true)
                 let itemIndex = buffer_u16(drop_item)
                 let itemCount = buffer_u16(drop_count)
                 let dropX = buffer_u16(drop_x)
