@@ -487,6 +487,7 @@ class Player
                     dict_int.push({key, value})
                 }
 
+                //All of this should be moved to it's own file eventually.
                 switch(dialog_name)
                 {
                     case "menu.motd":
@@ -518,6 +519,30 @@ class Player
                             let event_buff = buffer_u16(UserEvents.RESPAWN)
                             send_data(this.socket, DataType.USER_EVENTS, this.local_identifier, event_buff)
                             broadcast_data(this, DataType.USER_EVENTS, this.global_identifier, event_buff)
+                        }
+                        else if (sub_action == "shop")
+                        {
+                            //Categories
+                            let category_count = buffer_u16(1)
+
+                            let index = buffer_u16(0)
+                            let open = buffer_bool(true)
+                            let item = buffer_u16(0)
+                            let categories = Buffer.concat([
+                                category_count, index, open, item, buffer_string("Category 1")
+                            ]);
+
+                            //Listings
+                            let listing_count = buffer_u16(1)
+                            
+                            let listing_index = buffer_u16(1)
+                            let listing_item = buffer_u16(3)
+
+                            let listings = Buffer.concat([
+                                listing_count, listing_index, listing_item, buffer_string("An item listing"), buffer_string("This is the description for an item listing."), buffer_string("It can be quite long, I think...")
+                            ]);
+
+                            send_data(this.socket, DataType.SHOP_CONTENT, categories, listings)
                         }
                         else if (sub_action == "settings")
                         {
