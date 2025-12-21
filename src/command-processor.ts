@@ -97,14 +97,9 @@ commands.register_command("e", "Emote. /e dance, /e wave", (player, args) => {
         return;
     }
 
-    let dance_id_buffer = Buffer.alloc(1)
-    dance_id_buffer.writeUint8(emote_id)
-
-    let dance_frame_buffer = Buffer.alloc(1)
-    dance_frame_buffer.writeUint8(0)
-
-    let dance_time_buffer = Buffer.alloc(1)
-    dance_time_buffer.writeUint8(emote_duration)
+    let dance_id_buffer = buffer_u8(emote_id)
+    let dance_frame_buffer = buffer_u8(0)
+    let dance_time_buffer = buffer_u8(emote_duration)
 
     send_data(player.socket, DataType.EMOTES, player.local_identifier, dance_id_buffer, dance_frame_buffer, dance_time_buffer)
 })
@@ -129,9 +124,7 @@ commands.register_command("warp", "Warp to a different world.", (player, args) =
     if (validate_string(args[0]) == false || (args[0].length == 0 || args[0].length > 32))
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9."))
 
-    let destroyBuffer = Buffer.alloc(1);
-    destroyBuffer.writeUInt8(1);
-    broadcast_data(player, DataType.PLAYER_MOVEMENT_DATA, player.global_identifier, destroyBuffer)
+    broadcast_data(player, DataType.PLAYER_MOVEMENT_DATA, player.global_identifier, buffer_bool(true))
 
     player.warp(args[0])
 })
