@@ -70,7 +70,7 @@ class Player
         this.local_identifier.writeInt32LE(0)
         this.global_identifier.writeInt32LE(id)
 
-        this.log(`New player created!`)
+        this.log(`New player created.`)
     }
 
     private log(data:any)
@@ -104,13 +104,10 @@ class Player
         this.world = world_sessions.get(world)!
         this.world.players.push(this.profile.data.username)
 
-        let successBuffer:Buffer = Buffer.alloc(1);
-        successBuffer.writeUInt8(1);
-
         let messageBuffer:Buffer = buffer_string(`You have entered "${world}".`);
         let worldNameBuffer:Buffer = buffer_string(world)
 
-        send_data(this.socket, DataType.WARP, successBuffer, messageBuffer, worldNameBuffer)
+        send_data(this.socket, DataType.WARP, buffer_bool(true), messageBuffer, worldNameBuffer)
         broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has entered the world.]`))
     }
 
@@ -120,13 +117,9 @@ class Player
         {
             if (this.world) this.world.players.splice(this.world.players.indexOf(this.profile.data.username), 1)
 
-            let identifier = Buffer.alloc(4)
-            identifier.writeInt32LE(this.id)
+            let identifier = buffer_s32(this.id)
 
-            let destroyBuffer = Buffer.alloc(1);
-            destroyBuffer.writeUInt8(1);
-
-            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, identifier, destroyBuffer)
+            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, identifier, buffer_bool(true))
             broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has logged out.]`))
         }
 
@@ -260,8 +253,6 @@ class Player
                 }
 
                 //login response
-                let successBuffer = Buffer.alloc(1)
-                successBuffer.writeUint8(success ? 1 : 0)
                 let loginInfoBuffer = Buffer.alloc(0);
                 if (success)
                 {
@@ -270,7 +261,7 @@ class Player
                         buffer_string(passw)
                     ]);
                 }
-                send_data(this.socket, DataType.LOGIN, successBuffer, message, loginInfoBuffer)
+                send_data(this.socket, DataType.LOGIN, buffer_bool(success), message, loginInfoBuffer)
 
                 if (success) 
                 {
@@ -342,9 +333,6 @@ class Player
                     message = buffer_string(`~1Welcome to GoldenBedrock, ${uname}! ~0You can now login.`)
                 }
 
-                let successBuffer = Buffer.alloc(1)
-                successBuffer.writeUint8(success ? 1 : 0)
-
                 let loginInfoBuffer = Buffer.alloc(0);
                 if (success)
                 {
@@ -354,7 +342,7 @@ class Player
                     ]);
                 }
 
-                send_data(this.socket, DataType.REGISTER, successBuffer, message, loginInfoBuffer)
+                send_data(this.socket, DataType.REGISTER, buffer_bool(success), message, loginInfoBuffer)
 
                 if (success)
                 {
@@ -414,12 +402,10 @@ class Player
                 if (!doubleClick)
                 {
                     //tooltip notification
-                    let notification_time = Buffer.alloc(2)
-                    notification_time.writeUint16LE(100)
-    
-                    let notification_icon = Buffer.alloc(2)
-                    notification_icon.writeUint16LE(this.profile.data.inventory.items[slot].index)
-    
+                    let notification_time = buffer_u16(100)
+
+                    let notification_icon = buffer_u16(this.profile.data.inventory.items[slot].index)
+
                     let text = buffer_string(item_data.name)
                     send_data(this.socket, 17, notification_time, notification_icon, text)
                 }
@@ -529,8 +515,7 @@ class Player
                         }
                         else if (sub_action == "respawn")
                         {
-                            let event_buff = Buffer.alloc(2)
-                            event_buff.writeUint16LE(UserEvents.RESPAWN)
+                            let event_buff = buffer_u16(UserEvents.RESPAWN)
                             send_data(this.socket, DataType.USER_EVENTS, this.local_identifier, event_buff)
                             broadcast_data(this, DataType.USER_EVENTS, this.global_identifier, event_buff)
                         }
@@ -649,7 +634,6 @@ class Player
                     {
                         if (sub_action == "item.drop.confirm")
                             {
-                                //it's confirmed. nuke it.
                                 let count:number = +dict_str[0].value
     
                                 if (Number.isNaN(count) || count <= 0 || count > 999) //replace 999 with actual count
@@ -657,19 +641,14 @@ class Player
                                 else
                                 {
                                     //spawn drop
-                                    let destroyBuffer = Buffer.alloc(1)
-                                    destroyBuffer.writeUint8(0)
-                                    let indexBuffer = Buffer.alloc(2)
-                                    indexBuffer.writeUint16LE(this.dialog_item)
-                                    let countBuffer = Buffer.alloc(2)
-                                    countBuffer.writeUint16LE(count)
-                                    let xBuffer = Buffer.alloc(2)
-                                    xBuffer.writeUint16LE((this.x) + (32 * this.direction))
-                                    let yBuffer = Buffer.alloc(2)
-                                    yBuffer.writeUint16LE(this.y + 8)
+                                    let destroyDrop = buffer_bool(false)
+                                    let itemIndex = buffer_u16(this.dialog_item)
+                                    let itemCount = buffer_u16(count)
+                                    let dropX = buffer_u16((this.x) + (32 * this.direction))
+                                    let dropY = buffer_u16(this.y + 8)
 
-                                    send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
-                                    broadcast_data(this, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                                    send_data(this.socket, DataType.DROPS, destroyDrop, itemIndex, itemCount, dropX, dropY)
+                                    broadcast_data(this, DataType.DROPS, destroyDrop, itemIndex, itemCount, dropX, dropY)
 
                                     await this.profile.edit_inventory(this.dialog_item, -count)
                                     let invData:Buffer = this.profile.get_inventory_buffer()
@@ -690,18 +669,14 @@ class Player
                                 return;
                             }
 
-                            let destroyBuffer = Buffer.alloc(1);
-                            destroyBuffer.writeUInt8(1);
-                            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
+                            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, buffer_bool(true))
                             broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has left the world.]`))
 
                             this.warp(dict_str[0].value)
                         }
                         else if (sub_action == "warp.reward")
                         {
-                            let destroyBuffer = Buffer.alloc(1);
-                            destroyBuffer.writeUInt8(1);
-                            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
+                            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, buffer_bool(true))
                             broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has left the world.]`))
 
                             this.warp("REWARDS")
@@ -716,9 +691,7 @@ class Player
                                 return;
                             }
 
-                            let destroyBuffer = Buffer.alloc(1);
-                            destroyBuffer.writeUInt8(1);
-                            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
+                            broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, buffer_bool(true))
                             broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has left the world.]`))
     
                             this.warp(world)
@@ -732,8 +705,7 @@ class Player
                 if (!this.world) return;
 
                 //Player hand movement for clicking
-                let event_buff = Buffer.alloc(2)
-                event_buff.writeUint16LE(UserEvents.HAND_ANGLE)
+                let event_buff = buffer_u16(UserEvents.HAND_ANGLE)
                 send_data(this.socket, DataType.USER_EVENTS, this.local_identifier, event_buff)
                 broadcast_data(this, DataType.USER_EVENTS, this.global_identifier, event_buff)
 
@@ -767,18 +739,11 @@ class Player
                     //Check for tile in that location
                     if (click_count >= hardness)
                     {
-                        let x_buffer = Buffer.alloc(2)
-                        x_buffer.writeInt16LE(click_x)
-            
-                        let y_buffer = Buffer.alloc(2)
-                        y_buffer.writeInt16LE(click_y)
-
-                        let layer_buffer = Buffer.alloc(2)
-                        layer_buffer.writeInt16LE(layer)
-            
-                        let place_buffer = Buffer.alloc(2)
-                        place_buffer.writeInt16LE(0)
-    
+                        let x_buffer = buffer_u16(click_x)
+                        let y_buffer = buffer_u16(click_y)
+                        let layer_buffer = buffer_u16(layer)
+                        let place_buffer = buffer_u16(0) //places a null tile
+                        
                         send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                         broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                         this.world?.modify_tile(click_x, click_y, layer, 0)
@@ -813,19 +778,14 @@ class Player
 
                         if (drop_item !== 0)
                         {
-                            let destroyBuffer = Buffer.alloc(1)
-                            destroyBuffer.writeUint8(0)
-                            let indexBuffer = Buffer.alloc(2)
-                            indexBuffer.writeUint16LE(drop_item)
-                            let countBuffer = Buffer.alloc(2)
-                            countBuffer.writeUint16LE(item_count)
-                            let xBuffer = Buffer.alloc(2)
-                            xBuffer.writeUint16LE((click_x*32)+8)
-                            let yBuffer = Buffer.alloc(2)
-                            yBuffer.writeUint16LE((click_y*32)+8)
+                            let destroyDrop = buffer_bool(false)
+                            let itemIndex = buffer_u16(drop_item)
+                            let itemCount = buffer_u16(item_count)
+                            let dropX = buffer_u16((click_x*32)+8)
+                            let dropY = buffer_u16((click_y*32)+8)
 
-                            send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
-                            broadcast_data(this, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                            send_data(this.socket, DataType.DROPS, destroyDrop, itemIndex, itemCount, dropX, dropY)
+                            broadcast_data(this, DataType.DROPS, destroyDrop, itemIndex, itemCount, dropX, dropY)
                         }
 
                         //give gem rewards. TODO: proper calculations.
@@ -833,20 +793,13 @@ class Player
                     }
                     else
                     {
-                        let x_buffer = Buffer.alloc(2)
-                        x_buffer.writeInt16LE(click_x)
-            
-                        let y_buffer = Buffer.alloc(2)
-                        y_buffer.writeInt16LE(click_y)
-            
-                        let hit_buffer = Buffer.alloc(2)
-                        hit_buffer.writeInt16LE(click_count+1)
-                                        
-                        let hardness_buffer = Buffer.alloc(2)
-                        hardness_buffer.writeInt16LE(hardness+1)
-    
-                        send_data(this.socket, DataType.TILE_PUNCH, x_buffer, y_buffer, hit_buffer, hardness_buffer)
-                        broadcast_data(this, DataType.TILE_PUNCH, x_buffer, y_buffer, hit_buffer, hardness_buffer)
+                        let punch_x = buffer_u16(click_x)
+                        let punch_y = buffer_u16(click_y)
+                        let punches = buffer_u16(click_count+1)
+                        let tile_hardness = buffer_u16(hardness)
+
+                        send_data(this.socket, DataType.TILE_PUNCH, punch_x, punch_y, punches, tile_hardness)
+                        broadcast_data(this, DataType.TILE_PUNCH, punch_x, punch_y, punches, tile_hardness)
                     }
                 }
                 else if (item == item_id.wrench)
@@ -956,12 +909,11 @@ class Player
                         case ITEM_TYPE.INTERACTABLE: {
                             if (item == item_id.white_ball)
                             {
-                                let px = Buffer.alloc(2), py = Buffer.alloc(2), bx = Buffer.alloc(2), by = Buffer.alloc(2);
-
-                                px.writeUInt16LE(this.x)
-                                py.writeUint16LE(this.y)
-                                bx.writeUInt16LE(raw_click_x)
-                                by.writeUint16LE(raw_click_y)
+                                let px, py, bx, by 
+                                px = buffer_u16(this.x)
+                                py = buffer_u16(this.y)
+                                bx = buffer_u16(raw_click_x)
+                                by = buffer_u16(raw_click_y)
 
                                 send_data(this.socket, DataType.BALL, px, py, bx, by)
                                 broadcast_data(this, DataType.BALL, px, py, bx, by)
@@ -1179,8 +1131,7 @@ class Player
             {
                 //FIXME: Sometimes, bubbles dont disappear
                 const action = reader.readInt16()
-                let actionBuffer = Buffer.alloc(2)
-                actionBuffer.writeUInt16LE(action)
+                let actionBuffer = buffer_u16(action)
 
                 send_data(this.socket, DataType.ACTION_BUBBLES, this.local_identifier, actionBuffer)
                 broadcast_data(this, DataType.ACTION_BUBBLES, this.global_identifier, actionBuffer)
@@ -1207,9 +1158,8 @@ class Player
                     send_data(this.socket, DataType.CONSOLE_MESSAGE, msg)
 
                     //above player
-                    let render_msg = string_buffer(mymessage)
-                    let visibleTime = Buffer.alloc(2)
-                    visibleTime.writeUInt16LE(mymessage.length * 2)
+                    let render_msg = buffer_string(mymessage)
+                    let visibleTime = buffer_u16(mymessage.length * 2)
 
                     send_data(this.socket, DataType.PLAYER_MESSAGE, this.local_identifier, render_msg, visibleTime)
                     broadcast_data(this, DataType.PLAYER_MESSAGE, this.global_identifier, render_msg, visibleTime)
