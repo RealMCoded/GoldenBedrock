@@ -725,6 +725,14 @@ class Player
                 }
             } break;
 
+            case CommandType.SHOP_ITEM:
+            {
+                const section = reader.readUint8() //0 = category, 1 = listing
+                const item = reader.readUint16() //selected item index
+
+                this.log(`Shop interaction - Tab: ${section}, Item Index: ${item}`)
+            } break;
+
             case CommandType.WORLD_CLICK:
             {
                 if (!this.world) return;
