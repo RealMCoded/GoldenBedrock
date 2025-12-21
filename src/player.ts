@@ -1,11 +1,11 @@
 import * as net from "net";
 import { BinaryReader } from "@picode/binary-reader";
-import { DataType, send_data, update_dialog, broadcast_data, UserEvents } from "./data";
+import { DataType, send_data, update_dialog, broadcast_data, UserEvents, buffer_bool, buffer_u8, buffer_u16, buffer_s32, buffer_string} from "./data";
 import { PlayerProfile } from "./profile";
 import { Dialog } from "./dialog";
 import { online, motd, wordfilter, blacklist, world_sessions } from "./main";
 import User from "./models/User";
-import { account_online, generate_token, point_in_rectangle, string_buffer, validate_string, item_from_id } from "./utils";
+import { account_online, generate_token, point_in_rectangle, validate_string, item_from_id } from "./utils";
 import { GameWorld, random_world, Theme } from "./world";
 import { items } from "./item-id";
 import { commands } from "./command-processor";
@@ -59,8 +59,8 @@ class Player
     dialog_tile:number[] = [0, 0, 0]; //x, y, id
     inventory_slot:number = 0;
     creation_time:number = Date.now()
-    local_identifier:Buffer = Buffer.alloc(4)
-    global_identifier:Buffer = Buffer.alloc(4)
+    local_identifier:Buffer = Buffer.alloc(4) //Signed int32
+    global_identifier:Buffer = Buffer.alloc(4) //Signed int32
 
     constructor(socket:net.Socket, id:number)
     {
@@ -91,7 +91,7 @@ class Player
 
         if (this.world && this.world.name == world)
         {
-            send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Warp failed! ~0You cannot warp to the same world you are already in."));
+            send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3Warp failed! ~0You cannot warp to the same world you are already in."));
             return;
         }
 
@@ -107,11 +107,11 @@ class Player
         let successBuffer:Buffer = Buffer.alloc(1);
         successBuffer.writeUInt8(1);
 
-        let messageBuffer:Buffer = string_buffer(`You have entered "${world}".`);
-        let worldNameBuffer:Buffer = string_buffer(world)
+        let messageBuffer:Buffer = buffer_string(`You have entered "${world}".`);
+        let worldNameBuffer:Buffer = buffer_string(world)
 
         send_data(this.socket, DataType.WARP, successBuffer, messageBuffer, worldNameBuffer)
-        broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has entered the world.]`))
+        broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has entered the world.]`))
     }
 
     async close()
@@ -127,7 +127,7 @@ class Player
             destroyBuffer.writeUInt8(1);
 
             broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, identifier, destroyBuffer)
-            broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has logged out.]`))
+            broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has logged out.]`))
         }
 
         //remove connections
@@ -164,7 +164,7 @@ class Player
         if (!this.active && !this.world && Date.now() > this.creation_time + 60000 )
         {
             this.log("Inactive on title screen for 60 seconds, kicked.")
-            send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("You have been disconnected for 60 seconds of inactivity on the login screen."))
+            send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("You have been disconnected for 60 seconds of inactivity on the login screen."))
             this.close()
         }
 
@@ -210,10 +210,10 @@ class Player
                     }
                 }
 
-                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~rConnected to GoldenBedrock successfully!"))
-                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("Learn more at ~5https://github.com/RealMCoded/GoldenBedrock"))
+                send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~rConnected to GoldenBedrock successfully!"))
+                send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("Learn more at ~5https://github.com/RealMCoded/GoldenBedrock"))
                 if (process.env.NODE_ENV == "dev") 
-                    send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("This server is running using the ~3DEVELOPMENT ENVIRONMENT~0{!!!} Do not use this for production!"))
+                    send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("This server is running using the ~3DEVELOPMENT ENVIRONMENT~0{!!!} Do not use this for production!"))
             } break;
 
             case CommandType.LOGIN:
@@ -231,31 +231,31 @@ class Player
 
                 if (process.env.NODE_ENV == "dev")
                 {
-                    send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3[DEV MODE] ~0Login checks are bypassed."))
+                    send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3[DEV MODE] ~0Login checks are bypassed."))
                     success = true;
-                    message = string_buffer(`~5Welcome back, ${uname}! ~0There are ${online.length} players online.`)
+                    message = buffer_string(`~5Welcome back, ${uname}! ~0There are ${online.length} players online.`)
                 }
                 else
                 {
                     if (account == null)
                     {
                         success = false;
-                        message = string_buffer(`~3Account "${uname}" does not exit on this server. ~0Go register it!`)
+                        message = buffer_string(`~3Account "${uname}" does not exit on this server. ~0Go register it!`)
                     }
                     else if (passw != account.token)
                     {
                         success = false;
-                        message = string_buffer(`~3Login failed! ~0The token doesn't match the one associated with this account.`)
+                        message = buffer_string(`~3Login failed! ~0The token doesn't match the one associated with this account.`)
                     }
                     else if (account_online(uname))
                     {
                         success = false;
-                        message = string_buffer(`~3Login failed! ~0This account is already logged in.`)
+                        message = buffer_string(`~3Login failed! ~0This account is already logged in.`)
                     }
                     else
                     {
                         success = true;
-                        message = string_buffer(`~5Welcome back, ${uname}! ~0There are ${online.length} players online.`)
+                        message = buffer_string(`~5Welcome back, ${uname}! ~0There are ${online.length} players online.`)
                     }
                 }
 
@@ -266,8 +266,8 @@ class Player
                 if (success)
                 {
                     loginInfoBuffer = Buffer.concat([
-                        string_buffer(uname),
-                        string_buffer(passw)
+                        buffer_string(uname),
+                        buffer_string(passw)
                     ]);
                 }
                 send_data(this.socket, DataType.LOGIN, successBuffer, message, loginInfoBuffer)
@@ -308,38 +308,38 @@ class Player
                 if (process.env.REGISTRATIONS_OPEN == "false")
                 {
                     success = false
-                    message = string_buffer(`~3Registration failed! ~0Registrations are closed on this server.`)
+                    message = buffer_string(`~3Registration failed! ~0Registrations are closed on this server.`)
                 }
                 else if (account != null)
                 {
                     success = false
-                    message = string_buffer(`~3Registration failed! ~0An account with that name already exists.`)
+                    message = buffer_string(`~3Registration failed! ~0An account with that name already exists.`)
                 }
                 else if (uname.length < 1 || email.length < 1)
                 {
                     success = false
-                    message = string_buffer(`~3Registration failed! ~0You must provide a username and email.`)
+                    message = buffer_string(`~3Registration failed! ~0You must provide a username and email.`)
                 }
                 else if (uname.length < 2 || uname.length > 12)
                 {
                     success = false
-                    message = string_buffer(`~3Registration failed! ~0Usernames must be between 3-12 characters long.`)
+                    message = buffer_string(`~3Registration failed! ~0Usernames must be between 3-12 characters long.`)
                 }
                 else if (validate_string(uname) == false)
                 {
                     success = false
-                    message = string_buffer(`~3Registration failed! ~0Usernames can only contain characters A-z 0-9.`)
+                    message = buffer_string(`~3Registration failed! ~0Usernames can only contain characters A-z 0-9.`)
                 }
                 else if (blacklist.user.includes(uname))
                 {
                     success = false
-                    message = string_buffer(`~3Registration failed! ~0That username is blacklisted on this server.`)
+                    message = buffer_string(`~3Registration failed! ~0That username is blacklisted on this server.`)
                 }
                 else
                 {
                     account = await User.create({username: uname, email, token})
                     success = true
-                    message = string_buffer(`~1Welcome to GoldenBedrock, ${uname}! ~0You can now login.`)
+                    message = buffer_string(`~1Welcome to GoldenBedrock, ${uname}! ~0You can now login.`)
                 }
 
                 let successBuffer = Buffer.alloc(1)
@@ -349,8 +349,8 @@ class Player
                 if (success)
                 {
                     loginInfoBuffer = Buffer.concat([
-                        string_buffer(uname),
-                        string_buffer(token)
+                        buffer_string(uname),
+                        buffer_string(token)
                     ]);
                 }
 
@@ -381,12 +381,12 @@ class Player
                 let account = await User.findOne({where: {username:uname, email:email}})
 
                 if (account == null)
-                    message = string_buffer("~3Recovery failed! ~0There is no account with that username and email on this server.")
+                    message = buffer_string("~3Recovery failed! ~0There is no account with that username and email on this server.")
                 else if (uname.length < 1 || email.length < 1)
-                    message = string_buffer(`~3Recovery failed! ~0You must provide a username and email.`)
+                    message = buffer_string(`~3Recovery failed! ~0You must provide a username and email.`)
                 else
                 {
-                    message = string_buffer(`~1An email has been sent with your account token. Check your spam folder.`)
+                    message = buffer_string(`~1An email has been sent with your account token. Check your spam folder.`)
                     send_recovery_email(account.username, account.token, account.email)
                 }
                 
@@ -420,7 +420,7 @@ class Player
                     let notification_icon = Buffer.alloc(2)
                     notification_icon.writeUint16LE(this.profile.data.inventory.items[slot].index)
     
-                    let text = string_buffer(item_data.name)
+                    let text = buffer_string(item_data.name)
                     send_data(this.socket, 17, notification_time, notification_icon, text)
                 }
                 else
@@ -507,7 +507,7 @@ class Player
                     {
                         if (sub_action == "motd.linkbutton")
                         {
-                            let uri = string_buffer(motd.LinkButtonLink)
+                            let uri = buffer_string(motd.LinkButtonLink)
                             send_data(this.socket, DataType.URL_OPEN, uri)
                         }
                     } break;
@@ -557,8 +557,8 @@ class Player
                         }
                         else if (sub_action == "bug")
                         {
-                            send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Opening bug report page!"))
-                            send_data(this.socket, DataType.URL_OPEN, string_buffer("https://github.com/RealMCoded/GoldenBedrock/issues"))
+                            send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Opening bug report page!"))
+                            send_data(this.socket, DataType.URL_OPEN, buffer_string("https://github.com/RealMCoded/GoldenBedrock/issues"))
                         }
                     } break;
 
@@ -628,19 +628,19 @@ class Player
                                 let count:number = +dict_str[0].value
 
                                 if (Number.isNaN(count) || count <= 0 || count > 999) //replace 999 with actual count
-                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3You are trashing too little or too much of this item."))
+                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3You are trashing too little or too much of this item."))
                                 else
                                 {
                                     await this.profile.edit_inventory(this.dialog_item, -count)
                                     let invData:Buffer = this.profile.get_inventory_buffer()
                                     send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
 
-                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~1Trashed ${count}x items.`))
+                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~1Trashed ${count}x items.`))
                                 }
                             }
                             else
                             {
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3You must confirm this action."))
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3You must confirm this action."))
                             }
                         }
                     } break;
@@ -653,7 +653,7 @@ class Player
                                 let count:number = +dict_str[0].value
     
                                 if (Number.isNaN(count) || count <= 0 || count > 999) //replace 999 with actual count
-                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3You are dropping too little or too much of this item."))
+                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3You are dropping too little or too much of this item."))
                                 else
                                 {
                                     //spawn drop
@@ -675,7 +675,7 @@ class Player
                                     let invData:Buffer = this.profile.get_inventory_buffer()
                                     send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
 
-                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~Dropped ${count}x items.`))
+                                    return send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~Dropped ${count}x items.`))
                                 }
                             }
                     } break;
@@ -686,14 +686,14 @@ class Player
                         {
                             if (validate_string(dict_str[0].value) == false || dict_str[0].value.length == 0 || dict_str[0].value.length > 32)
                             {
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9."));
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9."));
                                 return;
                             }
 
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
                             broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-                            broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
+                            broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has left the world.]`))
 
                             this.warp(dict_str[0].value)
                         }
@@ -702,7 +702,7 @@ class Player
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
                             broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-                            broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
+                            broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has left the world.]`))
 
                             this.warp("REWARDS")
                         }
@@ -712,14 +712,14 @@ class Player
 
                             if (world == "ERR_NO_OTHER_WORLDS")
                             {
-                                send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Warp failed! ~0No other worlds exist yet. Go make one!"));
+                                send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3Warp failed! ~0No other worlds exist yet. Go make one!"));
                                 return;
                             }
 
                             let destroyBuffer = Buffer.alloc(1);
                             destroyBuffer.writeUInt8(1);
                             broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer)
-                            broadcast_data(this, DataType.CONSOLE_MESSAGE, string_buffer(`[~1${this.profile.data.username} ~0has left the world.]`))
+                            broadcast_data(this, DataType.CONSOLE_MESSAGE, buffer_string(`[~1${this.profile.data.username} ~0has left the world.]`))
     
                             this.warp(world)
                         }
@@ -951,7 +951,7 @@ class Player
                             send_data(this.socket, DataType.INVENTORY_UPDATE, invData)
                         } break;
                         case ITEM_TYPE.EQUIPPABLE: {
-                            send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~3You cannot place equippable items!`))
+                            send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~3You cannot place equippable items!`))
                         } break;
                         case ITEM_TYPE.INTERACTABLE: {
                             if (item == item_id.white_ball)
@@ -1149,7 +1149,7 @@ class Player
                     let notification_icon = Buffer.alloc(2)
                     notification_icon.writeUint16LE(world_data.foreground)
     
-                    let text = string_buffer(tile_text)
+                    let text = buffer_string(tile_text)
                     send_data(this.socket, 17, notification_time, notification_icon, text)
                 }
             } break;
@@ -1195,14 +1195,14 @@ class Player
 
                 if (mymessage.charAt(0) == "/") //is command
                 {
-                    send_data(this.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5${mymessage}`))
+                    send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~5${mymessage}`))
 
                     commands.process_command(this, mymessage)
                 }
                 else
                 {
                     //console
-                    let msg = string_buffer(`[~1${this.profile.data.username}~0] ${mymessage}`)
+                    let msg = buffer_string(`[~1${this.profile.data.username}~0] ${mymessage}`)
                     broadcast_data(this, DataType.CONSOLE_MESSAGE, msg)
                     send_data(this.socket, DataType.CONSOLE_MESSAGE, msg)
 

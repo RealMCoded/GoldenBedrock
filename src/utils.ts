@@ -107,16 +107,6 @@ function account_online(username:string): boolean
 }
 
 /**
- * Creates a null terminated String buffer.
- * @param string 
- * @returns Buffer
- */
-function string_buffer(string:string) : Buffer
-{
-    return Buffer.from(string + "\0", 'utf-8')
-}
-
-/**
  * Returns the flag sprite ID for a country.
  * @param country 
  * @returns Country ID
@@ -399,4 +389,4 @@ function point_in_rectangle(point_x:number, point_y:number, rectangle_x1:number,
 	    return false;
 }
 
-export {findPlayer, generate_token, get_flag, string_buffer, point_in_rectangle, validate_string, account_online, item_from_id, item_id_from_name, getCommitOrFail}
+export {findPlayer, generate_token, get_flag, point_in_rectangle, validate_string, account_online, item_from_id, item_id_from_name, getCommitOrFail}

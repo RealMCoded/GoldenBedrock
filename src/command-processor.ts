@@ -1,6 +1,6 @@
-import { DataType, send_data, update_dialog, broadcast_data } from "./data";
+import { DataType, send_data, update_dialog, broadcast_data, buffer_bool, buffer_u8, buffer_u16, buffer_s32, buffer_string } from "./data";
 import { Player } from "./player";
-import { string_buffer, validate_string } from "./utils";
+import { validate_string } from "./utils";
 import { online, motd } from "./main";
 import { Dialog } from "./dialog";
 import { items } from "./item-id";
@@ -35,7 +35,7 @@ class SlashCommands
         const args = parts; // Remaining parts are arguments
 
         if (!command || !this.commands[command]) 
-            return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~3Unknown Command: ~5/${command}`))
+            return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~3Unknown Command: ~5/${command}`))
         
         const { callback } = this.commands[command]
 
@@ -46,7 +46,7 @@ class SlashCommands
         catch(e)
         {
             console.error(e)
-            send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~3Command Error: ~5${e}`))
+            send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~3Command Error: ~5${e}`))
         }
     }
 }
@@ -71,12 +71,12 @@ commands.register_command("motd", "Shows Message of the Day", (player, args) => 
     if (motd.render)
         update_dialog(player, motd.messageOfTheDay)
     else
-        send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3MOTD has been disabled on this server."))
+        send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3MOTD has been disabled on this server."))
 })
 
 commands.register_command("e", "Emote. /e dance, /e wave", (player, args) => {
     if (args.length != 1)
-        return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /e <emote>. ~0Valid emotes: wave, dance"))
+        return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /e <emote>. ~0Valid emotes: wave, dance"))
 
     let emote_id:number;
     let emote_duration:number;
@@ -93,7 +93,7 @@ commands.register_command("e", "Emote. /e dance, /e wave", (player, args) => {
     }
     else
     {
-        send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /e <emote>. ~0Valid emotes: wave, dance"));
+        send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /e <emote>. ~0Valid emotes: wave, dance"));
         return;
     }
 
@@ -111,23 +111,23 @@ commands.register_command("e", "Emote. /e dance, /e wave", (player, args) => {
 
 commands.register_command("g", "Send a global message for 200 gems.", (player, args) => {
     if (args.length == 0)
-        return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /g <message>. ~0This will cost you ~1200 ~0gems."))
+        return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /g <message>. ~0This will cost you ~1200 ~0gems."))
 
     let global_message = args.join(" ")
     
     online.forEach(element => {
-        send_data(element.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5[Global Message from ~1${player.profile.data.username}~5]~0 ${global_message}`))
+        send_data(element.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~5[Global Message from ~1${player.profile.data.username}~5]~0 ${global_message}`))
     });
 
-    send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~4Global message sent!"))
+    send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~4Global message sent!"))
 })
 
 commands.register_command("warp", "Warp to a different world.", (player, args) => {
     if (args.length != 1)
-        return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /warp <world>. ~0Warp to another world."))
+        return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /warp <world>. ~0Warp to another world."))
 
     if (validate_string(args[0]) == false || (args[0].length == 0 || args[0].length > 32))
-        return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9."))
+        return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~3Warp failed! ~0World name must be between 1-32 characters, with letters A-z 0-9."))
 
     let destroyBuffer = Buffer.alloc(1);
     destroyBuffer.writeUInt8(1);
@@ -139,18 +139,18 @@ commands.register_command("warp", "Warp to a different world.", (player, args) =
 //STAFF COMMANDS
 commands.register_command("item", "Give an item from it's ID.", (player, args) => {
     if (args.length != 2)
-        return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /item <id> <amount>. ~0Gives an item from it's ID."))
+        return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /item <id> <amount>. ~0Gives an item from it's ID."))
 
     player.profile.edit_inventory(+args[0], +args[1])
 
     let invData:Buffer = player.profile.get_inventory_buffer()
     send_data(player.socket, DataType.INVENTORY_UPDATE, invData)
-    send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Gave ${args[1]}x "${items[+args[0]].name}"`))
+    send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~5Gave ${args[1]}x "${items[+args[0]].name}"`))
 })
 
 commands.register_command("find", "List items containing a string.", (player, args) => {
     if (args.length != 1)
-        return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /find <name>. ~0Lists items containing a string"))
+        return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /find <name>. ~0Lists items containing a string"))
 
     let itemList:Dialog = new Dialog("menu.items")
     itemList.ItemText(true, `Items containing "${args[0]}"`, 72, 3)
@@ -167,7 +167,7 @@ commands.register_command("find", "List items containing a string.", (player, ar
 
 commands.register_command("equip", "Equip an item from it's Id.", (player, args) => {
     if (args.length != 1)
-        return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /equip <id>. ~0Temp equip item"))
+        return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /equip <id>. ~0Temp equip item"))
 
     player.profile.equip_item(+args[0])
 
@@ -175,16 +175,16 @@ commands.register_command("equip", "Equip an item from it's Id.", (player, args)
     send_data(player.socket, DataType.PLAYER_PROFILE_DATA, player.local_identifier, profileData)
     broadcast_data(player, DataType.PLAYER_PROFILE_DATA, player.global_identifier, profileData)
 
-    send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
+    send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~5Data refreshed.`))
 })
 
 commands.register_command("usredit", "Edit your data for this session.", (player, args) => {
     if (args.length != 2)
-        return send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer("~5Usage: /usredit <key> <value>. ~0Temp edit local player data"))
+        return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /usredit <key> <value>. ~0Temp edit local player data"))
 
     player.profile.set(args[0], args[1])
 
-    send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Key "${args[0]}" set to "${args[1]}"`))
+    send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~5Key "${args[0]}" set to "${args[1]}"`))
 })
 
 commands.register_command("usrref", "Refresh local user data.", (player, args) => {
@@ -192,7 +192,7 @@ commands.register_command("usrref", "Refresh local user data.", (player, args) =
     send_data(player.socket, DataType.PLAYER_PROFILE_DATA, player.local_identifier, profileData)
     broadcast_data(player, DataType.PLAYER_PROFILE_DATA, player.global_identifier, profileData)
 
-    send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
+    send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~5Data refreshed.`))
 })
 
 commands.register_command("noclip", "Toggle noclip", (player, args) => {
@@ -201,7 +201,7 @@ commands.register_command("noclip", "Toggle noclip", (player, args) => {
     send_data(player.socket, DataType.PLAYER_PROFILE_DATA, player.local_identifier, profileData)
     broadcast_data(player, DataType.PLAYER_PROFILE_DATA, player.global_identifier, profileData)
 
-    send_data(player.socket, DataType.CONSOLE_MESSAGE, string_buffer(`~5Data refreshed.`))
+    send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string(`~5Data refreshed.`))
 })
 
 commands.register_command("nerdstats", "nerdstats. stats for nerds.", (player, args) => {

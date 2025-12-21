@@ -52,6 +52,64 @@ enum UserEvents
 }
 
 /**
+ * Convert a boolean to a buffer
+ * @param value The boolean value to convert
+ * @returns A buffer containing the boolean value
+ */
+function buffer_bool(value:boolean):Buffer
+{
+    let buffer:Buffer = Buffer.alloc(1);
+    buffer.writeUInt8(value ? 1 : 0);
+    return buffer;
+}
+
+/**
+ * Convert an unsigned 8-bit integer to a buffer
+ * @param value The value to convert
+ * @returns A buffer containing the value
+ */
+function buffer_u8(value:number):Buffer
+{
+    let buffer:Buffer = Buffer.alloc(1);
+    buffer.writeUInt8(value);
+    return buffer;
+}
+
+/**
+ * Convert an unsigned 16-bit integer to a buffer
+ * @param value The value to convert
+ * @returns A buffer containing the value
+ */
+function buffer_u16(value:number):Buffer
+{
+    let buffer:Buffer = Buffer.alloc(2);
+    buffer.writeUInt16LE(value);
+    return buffer;
+}
+
+/**
+ * Convert an signed 32-bit integer to a buffer
+ * @param value The value to convert
+ * @returns A buffer containing the value
+ */
+function buffer_s32(value:number):Buffer
+{
+    let buffer:Buffer = Buffer.alloc(4);
+    buffer.writeInt32LE(value);
+    return buffer;
+}
+
+/**
+ * Creates a null terminated String buffer.
+ * @param string 
+ * @returns Buffer
+ */
+function buffer_string(string:string) : Buffer
+{
+    return Buffer.from(string + "\0", 'utf-8')
+}
+
+/**
  * Send buffer data to a socket
  * @param socket Socket to send data to
  * @param data_id The ID of the data to send (DataType)
@@ -109,4 +167,4 @@ function update_dialog(player:Player, dialog:Dialog)
     player.socket.write(finalBuffer); //pack it, ship it
 }
 
-export {DataType, UserEvents, send_data, broadcast_data, update_dialog}
+export {DataType, UserEvents, send_data, broadcast_data, update_dialog, buffer_bool, buffer_u8, buffer_u16, buffer_s32, buffer_string}
