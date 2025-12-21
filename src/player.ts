@@ -1090,7 +1090,6 @@ class Player
 
             case CommandType.ACTION_BUBBLES:
             {
-                //FIXME: Sometimes, bubbles dont disappear
                 const action = reader.readInt16()
                 let actionBuffer = buffer_u16(action)
 
@@ -1124,6 +1123,12 @@ class Player
 
                     send_data(this.socket, DataType.PLAYER_MESSAGE, this.local_identifier, render_msg, visibleTime)
                     broadcast_data(this, DataType.PLAYER_MESSAGE, this.global_identifier, render_msg, visibleTime)
+
+                    //Dismiss chat bubble
+                    let actionBuffer = buffer_u16(0)
+
+                    send_data(this.socket, DataType.ACTION_BUBBLES, this.local_identifier, actionBuffer)
+                    broadcast_data(this, DataType.ACTION_BUBBLES, this.global_identifier, actionBuffer)
                 }
             } break;
 
