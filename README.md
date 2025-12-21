@@ -13,9 +13,9 @@ GoldenBedrock is an experimental private server for the game [Breaworlds](https:
 
 ## Project Status: Alpha (Proof of Concept)
 
-GoldenBedrock is still heavy work in progress. 
+GoldenBedrock is still a work in progress. 
 
-Only very basic gameplay works right now.
+Only basic gameplay works right now.
 
 Players can place and break tiles, but ownership of worlds does not work yet.
 
@@ -88,11 +88,11 @@ Feel free to change these values as you wish. Player cap should be OK at larger 
 
 **Q:** Will you ever target newer versions?
 
-**A:** Probably not, only for the reason that I haven't really played those versions all that much. You can, however, fork this project and make the modifications yourself!
+**A:** Maybe when 3.8.3 support is mostly feature complete. I have a decent archive of versions to go through to find the perfect target however.
 
 **Q:** Have you looked at the server source code leak that uses the exact same client version that you are targeting? Are you using it as a reference? 
 
-**A:** I am aware of the 3.8.3 server source code and client being online. However, the code is so unreadable that it doesn't work that well as a reference. The only thing I have taken from it *(and the only thing i plan to take from it)* is the item listing. You wouldn't want to type out the information for 1,242 items right? As for the client, i've had it wayyyyy before it got leaked online.
+**A:** I am aware of the 3.8.3 server source code and client being online. However, the code is so unreadable that it doesn't work that well as a reference. The only thing I have taken from it *(and the only thing i plan to take from it)* is the item listing. You wouldn't want to type out the information for 1,242 items right? As for the client, i've had it wayyy before it got leaked online.
 
 ## License
 
