@@ -106,4 +106,8 @@ GoldenBedrock operates as a fan-driven initiative and is intended solely for pri
 
 For inquiries, please contact: `contact [at] stuartt.ca`.  
 
-This project is not responsible for any potential violations of Bitdawn Studios' terms of service by users. Users are advised to review and adhere to *Breaworlds*'s official policies.  
+This project is not responsible for any potential violations of Bitdawn Studios' terms of service by users. Users are advised to review and adhere to *Breaworlds*'s official policies.
+
+<!--P.S - The creator of this project wishes to state that they do not in away way wish to tarnish or demean the beloved MMORPG owned by Bitdawn Studios. No malice or damage was intended. So please don't sue me, because it will drag through the courts for years, and I haven't got a lawyer - and besides, you've already got half the money in the world and I haven't got any. Ok? 
+
+If anything, take this as a resume and hire me to work on your game. This should show that I have the skills to manage your client and server source code.-->

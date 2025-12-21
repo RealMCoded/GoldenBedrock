@@ -860,17 +860,10 @@ class Player
                         case ITEM_TYPE.FOREGROUND: {
                             if (world_data.foreground !== 0) return;
 
-                            let x_buffer = Buffer.alloc(2)
-                            x_buffer.writeInt16LE(click_x)
-                
-                            let y_buffer = Buffer.alloc(2)
-                            y_buffer.writeInt16LE(click_y)
-    
-                            let layer_buffer = Buffer.alloc(2)
-                            layer_buffer.writeInt16LE(2)
-                
-                            let place_buffer = Buffer.alloc(2)
-                            place_buffer.writeInt16LE(item)
+                            let x_buffer = buffer_u16(click_x)
+                            let y_buffer = buffer_u16(click_y)
+                            let layer_buffer = buffer_u16(2)
+                            let place_buffer = buffer_u16(item)
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
@@ -883,17 +876,10 @@ class Player
                         case ITEM_TYPE.BACKGROUND: {
                             if (world_data.background !== 0) return;
 
-                            let x_buffer = Buffer.alloc(2)
-                            x_buffer.writeInt16LE(click_x)
-                
-                            let y_buffer = Buffer.alloc(2)
-                            y_buffer.writeInt16LE(click_y)
-    
-                            let layer_buffer = Buffer.alloc(2)
-                            layer_buffer.writeInt16LE(1)
-                
-                            let place_buffer = Buffer.alloc(2)
-                            place_buffer.writeInt16LE(item)
+                            let x_buffer = buffer_u16(click_x)
+                            let y_buffer = buffer_u16(click_y)
+                            let layer_buffer = buffer_u16(1)
+                            let place_buffer = buffer_u16(item)
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
@@ -920,17 +906,10 @@ class Player
                             }
                         } break;
                         case ITEM_TYPE.TREE: {
-                            let x_buffer = Buffer.alloc(2)
-                            x_buffer.writeInt16LE(click_x)
-                
-                            let y_buffer = Buffer.alloc(2)
-                            y_buffer.writeInt16LE(click_y)
-    
-                            let layer_buffer = Buffer.alloc(2)
-                            layer_buffer.writeInt16LE(2)
-                
-                            let place_buffer = Buffer.alloc(2)
-                            place_buffer.writeInt16LE(item)
+                            let x_buffer = buffer_u16(click_x)
+                            let y_buffer = buffer_u16(click_y)
+                            let layer_buffer = buffer_u16(2)
+                            let place_buffer = buffer_u16(item)
         
                             send_data(this.socket, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
                             broadcast_data(this, DataType.TILE_UPDATE, x_buffer, y_buffer, layer_buffer, place_buffer)
@@ -952,19 +931,14 @@ class Player
                 drop_item = reader.readUint16()
                 drop_count = reader.readUint16()
 
-                let destroyBuffer = Buffer.alloc(1)
-                destroyBuffer.writeUint8(1)
-                let indexBuffer = Buffer.alloc(2)
-                indexBuffer.writeUint16LE(drop_item)
-                let countBuffer = Buffer.alloc(2)
-                countBuffer.writeUint16LE(drop_count)
-                let xBuffer = Buffer.alloc(2)
-                xBuffer.writeUint16LE(drop_x)
-                let yBuffer = Buffer.alloc(2)
-                yBuffer.writeUint16LE(drop_y)
+                let destroyDrop = buffer_bool(false)
+                let itemIndex = buffer_u16(drop_item)
+                let itemCount = buffer_u16(drop_count)
+                let dropX = buffer_u16(drop_x)
+                let dropY = buffer_u16(drop_y)
 
-                send_data(this.socket, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
-                broadcast_data(this, DataType.DROPS, destroyBuffer, indexBuffer, countBuffer, xBuffer, yBuffer)
+                send_data(this.socket, DataType.DROPS, destroyDrop, itemIndex, itemCount, dropX, dropY)
+                broadcast_data(this, DataType.DROPS, destroyDrop, itemIndex, itemCount, dropX, dropY)
 
                 await this.profile.edit_inventory(drop_item, drop_count)
                 let invData:Buffer = this.profile.get_inventory_buffer()
@@ -972,6 +946,7 @@ class Player
 
             } break;
 
+            //TODO: Refactor this to use new buffer functions
             case CommandType.WORLD_DATA:
             {
                 if (!this.world) return;
@@ -1069,16 +1044,11 @@ class Player
                 this.x = new_x;
                 this.y = new_y;
 
-                let leave = Buffer.alloc(1);
-                leave.writeUInt8(0);
+                let is_leaving = buffer_bool(false);
+                let x_buffer = buffer_u16(this.x);
+                let y_buffer = buffer_u16(this.y);
 
-                let x_buffer = Buffer.alloc(2); 
-                x_buffer.writeUInt16LE(this.x, 0);
-
-                let y_buffer = Buffer.alloc(2); 
-                y_buffer.writeUInt16LE(this.y, 0);
-
-                broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, leave, x_buffer, y_buffer)
+                broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, is_leaving, x_buffer, y_buffer)
 
                 //Interactable tiles
                 const world_data = this.world.tiles_at_location(Math.round(this.x/32), Math.round(this.y/32))
@@ -1095,13 +1065,10 @@ class Player
                 if (tile_text !== "")
                 {
                     //tooltip notification
-                    let notification_time = Buffer.alloc(2)
-                    notification_time.writeUint16LE(100)
-    
-                    let notification_icon = Buffer.alloc(2)
-                    notification_icon.writeUint16LE(world_data.foreground)
-    
+                    let notification_time = buffer_u16(100)
+                    let notification_icon = buffer_u16(world_data.foreground)
                     let text = buffer_string(tile_text)
+
                     send_data(this.socket, 17, notification_time, notification_icon, text)
                 }
             } break;
@@ -1109,22 +1076,16 @@ class Player
             case CommandType.RESPAWN:
             {
                 if (!this.world) return;
-                //Set player position to door X and Y
-                let destroyBuffer = Buffer.alloc(1);
-                destroyBuffer.writeUInt8(0);
 
+                let is_leaving = buffer_bool(false);
                 let spawn = this.world.spawn_location
-
-                let curX = Buffer.alloc(2); 
-                curX.writeUInt16LE(spawn[0]*32, 0);
-                let curY = Buffer.alloc(2); 
-                curY.writeUInt16LE(spawn[1]*32, 0);
-
+                let curX = buffer_u16(spawn[0]*32);
+                let curY = buffer_u16(spawn[1]*32);
                 this.x = spawn[0]*32
                 this.y = spawn[1]*32
 
-                send_data(this.socket, DataType.PLAYER_MOVEMENT_DATA, this.local_identifier, destroyBuffer, curX, curY)
-                broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, destroyBuffer, curX, curY)
+                send_data(this.socket, DataType.PLAYER_MOVEMENT_DATA, this.local_identifier, is_leaving, curX, curY)
+                broadcast_data(this, DataType.PLAYER_MOVEMENT_DATA, this.global_identifier, is_leaving, curX, curY)
             } break;
 
             case CommandType.ACTION_BUBBLES:
