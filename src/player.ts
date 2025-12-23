@@ -871,16 +871,22 @@ class Player
 
                     this.dialog_tile = [click_x, click_y, world_data.foreground]
 
-                    if (world_data.foreground == item_id.wooden_sign)
+                    switch(world_data.foreground)
                     {
-                        let sign_data = this.world.get_tile_data(click_x, click_y)
-                        update_dialog(this, new Dialog("menu.sign.edit")
-                        .ItemText(true, "Edit sign", 72, 69)
-                        .TextBox(true, "menu.sign.content", sign_data[0], 32)
-                        .Text(true, "Text must follow the code of conduct!", 25)
-                        .Button(false, "menu.sign.confirm", "Save")
-                        .Button(true, "menu.sign.exit", "Close")
-                        )
+                        case item_id.wooden_sign:
+                        case item_id.candy_sign:
+                        case item_id.iron_sign:
+                        {
+                            let sign_data = this.world.get_tile_data(click_x, click_y)
+                            
+                            update_dialog(this, new Dialog("menu.sign.edit")
+                            .ItemText(true, "Edit sign", 72, 69)
+                            .TextBox(true, "menu.sign.content", sign_data[0], 32)
+                            .Text(true, "Text must follow the code of conduct!", 25)
+                            .Button(false, "menu.sign.confirm", "Save")
+                            .Button(true, "menu.sign.exit", "Close")
+                            )
+                        } break;
                     }
                 }
                 else // everything else
@@ -1089,6 +1095,8 @@ class Player
 
                 switch(world_data.foreground)
                 {
+                    case item_id.iron_sign:
+                    case item_id.candy_sign:
                     case item_id.wooden_sign:
                     {
                         tile_text = this.world.get_tile_data(Math.round(this.x/32), Math.round(this.y/32))[0]
