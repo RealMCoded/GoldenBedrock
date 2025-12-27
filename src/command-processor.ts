@@ -130,7 +130,7 @@ commands.register_command("warp", "Warp to a different world.", (player, args) =
 })
 
 //STAFF COMMANDS
-commands.register_command("item", "Give an item from it's ID.", (player, args) => {
+commands.register_command("item", "Give an item from its ID.", (player, args) => {
     if (args.length != 2)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /item <id> <amount>. ~0Gives an item from it's ID."))
 
@@ -158,7 +158,7 @@ commands.register_command("find", "List items containing a string.", (player, ar
     update_dialog(player, itemList)
 })
 
-commands.register_command("equip", "Equip an item from it's Id.", (player, args) => {
+commands.register_command("equip", "Equip an item from its Id.", (player, args) => {
     if (args.length != 1)
         return send_data(player.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Usage: /equip <id>. ~0Temp equip item"))
 
@@ -214,8 +214,6 @@ commands.register_command("nerdstats", "nerdstats. stats for nerds.", (player, a
     const platform = process.platform;
     //store node arch
     const arch = `${process.arch}`;
-    //store node cpu speed
-    const cpuSpeed = `${Math.round(process.cpuUsage().system / 1000 / 1000 * 100) / 100} MHz`;
     //store node total cpu usage
     const cpuUsage = `${Math.round(process.cpuUsage().user / 1000 / 1000 * 100) / 100} MHz`;
 
