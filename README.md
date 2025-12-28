@@ -13,11 +13,11 @@ GoldenBedrock is an experimental private server for the game [Breaworlds](https:
 
 ## Project Status: Alpha (Proof of Concept)
 
-GoldenBedrock is still a work in progress. 
-
-Only basic gameplay works right now.
+GoldenBedrock is still a work in progress. Only basic gameplay works right now.
 
 Players can place and break tiles, but ownership of worlds does not work yet.
+
+Most of this project is in need of a rewrite (including but not limited to: changing to PostgreSQL, moving over to Bun)
 
 For a full list of features that work and don't work, read [the progress page](./PROGRESS.MD).
 
