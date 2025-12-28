@@ -104,7 +104,7 @@ class Player
         this.world = world_sessions.get(world)!
         this.world.players.push(this.profile.data.username)
 
-        let messageBuffer:Buffer = buffer_string(`You have entered "${world}".`);
+        let messageBuffer:Buffer = buffer_string(`You have entered "${world}". There are ${this.world.players.length} players here.`);
         let worldNameBuffer:Buffer = buffer_string(world)
 
         send_data(this.socket, DataType.WARP, buffer_bool(true), messageBuffer, worldNameBuffer)
@@ -276,7 +276,7 @@ class Player
 
                     //set proper country data, if verified
                     if (this.profile.data.verified)
-                        this.profile.country = "breaworlds.verified"
+                        this.profile.country = "verified"
 
                     this.warp("TUTORIAL")
                 }
@@ -568,7 +568,7 @@ class Player
                         else if (sub_action == "bug")
                         {
                             send_data(this.socket, DataType.CONSOLE_MESSAGE, buffer_string("~5Opening bug report page!"))
-                            send_data(this.socket, DataType.URL_OPEN, buffer_string("https://github.com/RealMCoded/GoldenBedrock/issues"))
+                            send_data(this.socket, DataType.URL_OPEN, buffer_string("https://github.com/RealMCoded/GoldenBedrock/issues/"))
                         }
                     } break;
 
@@ -759,8 +759,6 @@ class Player
 
                 if (item == item_id.fist)
                 {
-                    this.log("Fist")
-
                     if (world_data.foreground == 0 && world_data.background == 0) return;
 
                     let hardness:number = 0;
@@ -796,7 +794,7 @@ class Player
                             let drop_type = Math.floor(Math.random() * (3 - 0) + 0)
                             if (drop_type == 0) //item
                             {
-                                //TODO: low and high density polyethylene
+                                this.log("TODO: low and high density polyethylene")
                             }
                             else if (drop_type == 1) //seed
                             {
@@ -878,7 +876,7 @@ class Player
                         case item_id.iron_sign:
                         {
                             let sign_data = this.world.get_tile_data(click_x, click_y)
-                            
+
                             update_dialog(this, new Dialog("menu.sign.edit")
                             .ItemText(true, "Edit sign", 72, 69)
                             .TextBox(true, "menu.sign.content", sign_data[0], 32)
@@ -1016,7 +1014,7 @@ class Player
                 let destroyBuffer = Buffer.alloc(1);
                 destroyBuffer.writeUInt8(0);
 
-                let spawn = this.world.spawn_location//find_spawn(this.world)
+                let spawn = this.world.spawn_location
 
                 let curX = Buffer.alloc(2); 
                 curX.writeUInt16LE(spawn[0]*32, 0);
