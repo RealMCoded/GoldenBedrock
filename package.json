@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "main": "dist/main.js",
   "scripts": {
-    "serve": "tsc --build && node .",
-    "build": "tsc --build",
-    "clean": "tsc --build --clean"
+    "serve": "npx tsc --build && node .",
+    "build": "npx tsc --build",
+    "clean": "npx tsc --build --clean"
   },
   "author": "stuartt",
   "license": "AGPL-3.0-or-later",
