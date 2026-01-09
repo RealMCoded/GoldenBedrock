@@ -205,6 +205,27 @@ class GameWorld
 
         return tiledata
     }
+
+    public set_owner(username:string)
+    {
+
+    }
+
+    public remove_owner()
+    {
+    }
+
+    public add_drop(x:number, y:number, item:number, amount:number)
+    {
+        this.data.drop.push({x:x, y:y, id:item, count:amount})
+    }
+
+    public remove_drop(x:number, y:number, item:number)
+    {
+        this.data.drop = this.data.drop.filter((drop:Drop) => {
+            return !(drop.x == x && drop.y == y && drop.id == item)
+        })
+    }
 }
 
 enum Theme
