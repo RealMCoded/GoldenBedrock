@@ -1,3 +1,11 @@
+# This project is currently going under a major rewrite.
+
+This repository will not receive any updates for a while and will soon be replaced by a new version.
+
+I decided to rewrite this entire project to use Bun instead of Node since Bun is just way better at doing everything. A lot of the code written here was from when I was still learning how Typescript and Node worked together. I can do way better now.
+
+---
+
 <div align="center">
 <!--<img src="./readme/logotext.png">-->
 <img src="./readme/logo.png" width="128" height="128">
